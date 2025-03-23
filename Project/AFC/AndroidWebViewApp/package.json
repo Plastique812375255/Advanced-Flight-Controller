@@ -1,0 +1,17 @@
+{
+  "name": "android-webview-app-server",
+  "version": "1.0.0",
+  "description": "本地测试服务器，用于Android WebView应用开发",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "android",
+    "webview",
+    "server"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
