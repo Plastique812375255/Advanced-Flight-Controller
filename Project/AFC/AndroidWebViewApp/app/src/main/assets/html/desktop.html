@@ -82,6 +82,50 @@
             box-shadow: 0 0 0 2px #2196F3, 0 2px 10px rgba(0, 0, 0, 0.2);
         }
         
+        /* 编辑模式下的组件视觉效果 */
+        .edit-mode .widget {
+            cursor: move; /* 显示移动光标 */
+        }
+        
+        /* 编辑模式下组件悬停效果 */
+        .edit-mode .widget:hover {
+            transform: scale(1.02); /* 轻微放大 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 编辑模式下组件拖动效果 */
+        .edit-mode .widget.dragging {
+            transform: scale(1.05); /* 拖动时更明显的放大 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+            z-index: 1000; /* 确保拖动的组件在最上层 */
+        }
+        
+        /* 添加拖动指示器 */
+        .drag-indicator {
+            display: none;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 15px;
+            height: 15px;
+            background-color: rgba(33, 150, 243, 0.7);
+            border-radius: 50%;
+            z-index: 5;
+            animation: pulse-indicator 1.5s infinite;
+        }
+        
+        /* 编辑模式下显示拖动指示器 */
+        .edit-mode .widget:hover .drag-indicator {
+            display: block;
+        }
+        
+        @keyframes pulse-indicator {
+            0% { transform: scale(0.8); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.7; }
+        }
+        
         .widget-header {
             padding: 8px;
             background-color: #f5f5f5;
@@ -102,101 +146,6 @@
             padding: 10px;
             height: calc(100% - 40px);
             overflow: auto;
-        }
-        
-        /* 遮罩层 */
-        #widgetMenuOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            display: none;
-        }
-        
-        #widgetMenuOverlay.active {
-            display: block;
-        }
-        
-        /* 组件选择侧边菜单 */
-        #widgetMenu {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 280px;
-            height: 100vh;
-            background-color: white;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            z-index: 10001;
-            overflow-y: auto;
-            transition: right 0.3s ease;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-        }
-        
-        #widgetMenu.active {
-            right: 0;
-            display: block !important;
-        }
-        
-        .widget-menu-title {
-            font-weight: bold;
-            padding: 15px;
-            background-color: #f5f5f5;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .widget-menu-close {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #888;
-        }
-        
-        #widgetList {
-            padding: 10px;
-        }
-        
-        .widget-option {
-            padding: 12px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border-radius: 6px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .widget-option:hover {
-            background-color: #f0f0f0;
-            border-color: #ddd;
-        }
-        
-        .widget-option-icon {
-            background-color: #e0e0e0;
-            color: #666;
-            padding: 5px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-        
-        .system-widget .widget-option-icon {
-            background-color: #bbdefb;
-            color: #1976d2;
-        }
-        
-        .user-widget .widget-option-icon {
-            background-color: #c8e6c9;
-            color: #388e3c;
         }
         
         /* 删除区域样式 */
@@ -239,69 +188,6 @@
             0% { opacity: 0.8; }
             50% { opacity: 1; }
             100% { opacity: 0.8; }
-        }
-        
-        /* AFC菜单样式 */
-        #afcMenuOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 10000;
-            display: none;
-        }
-        
-        #afcMenu {
-            position: fixed;
-            top: 0;
-            right: -300px;
-            width: 280px;
-            height: 100vh;
-            background-color: white;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            z-index: 10001;
-            overflow-y: auto;
-            transition: right 0.3s ease;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-        }
-        
-        #afcMenuList {
-            padding: 10px;
-        }
-        
-        .menu-option {
-            padding: 15px;
-            margin-bottom: 8px;
-            cursor: pointer;
-            border-radius: 6px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-        }
-        
-        .menu-option:hover,
-        .menu-option:active {
-            background-color: #e8e8e8;
-            border-color: #ddd;
-        }
-        
-        .menu-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #e0e0e0;
-            border-radius: 50%;
-            color: #555;
-            font-weight: bold;
-            font-size: 14px;
         }
         
         /* 功能按钮样式 */
@@ -442,11 +328,6 @@
 </head>
 <body>
     <!-- 删除组件区域 -->
-    <div id="deleteZone">
-        <div class="trash-icon">🗑️</div>
-        <div class="delete-text">拖动到此处删除组件</div>
-    </div>
-    
     <div id="desktop">
         <!-- 网格容器 -->
         <div id="desktopGrid" class="desktop-grid">
@@ -460,51 +341,6 @@
             <p>在编辑模式下可以移动、删除和添加组件</p>
             <p>在编辑模式下点击空白处可以添加新组件</p>
             <p>完成后点击左上角的退出按钮</p>
-        </div>
-        
-        <!-- 编辑模式控制区 -->
-        <div class="edit-controls" style="display: none;">
-            <button id="exitEditModeBtn" style="background-color: #f44336; color: white; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer;">退出编辑</button>
-        </div>
-    </div>
-    
-    <!-- 遮罩层 -->
-    <div id="widgetMenuOverlay"></div>
-    
-    <!-- 组件选择菜单 -->
-    <div id="widgetMenu">
-        <div class="widget-menu-title">
-            添加组件
-            <button class="widget-menu-close" onclick="hideWidgetMenu()">×</button>
-        </div>
-        <div id="widgetList"></div>
-    </div>
-    
-    <!-- AFC侧边菜单遮罩层 -->
-    <div id="afcMenuOverlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 10000; display: none;"></div>
-    
-    <!-- AFC侧边菜单 -->
-    <div id="afcMenu" style="position: fixed; top: 0; right: -300px; width: 280px; height: 100vh; background-color: white; box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); z-index: 10001; overflow-y: auto; transition: right 0.3s ease;">
-        <div class="widget-menu-title">
-            AFC
-            <button class="widget-menu-close" onclick="hideAfcMenu()">×</button>
-        </div>
-        <div id="afcMenuList">
-            <div class="menu-option"><div class="menu-icon">📡</div>对频</div>
-            <div class="menu-option"><div class="menu-icon">🌐</div>语言</div>
-            <div class="menu-option"><div class="menu-icon">⚙️</div>系统设置</div>
-            <div class="menu-option"><div class="menu-icon">👤</div>账号与同步</div>
-            <div class="menu-option"><div class="menu-icon">🛒</div>应用商店</div>
-            <div class="menu-option"><div class="menu-icon">🎨</div>主题设置</div>
-            <div class="menu-option"><div class="menu-icon">ℹ️</div>关于我们</div>
-            <div class="menu-option"><div class="menu-icon">❓</div>帮助中心</div>
-            <div class="menu-option"><div class="menu-icon">🔄</div>版本更新</div>
-            <div class="menu-option"><div class="menu-icon">🔔</div>通知设置</div>
-            <div class="menu-option"><div class="menu-icon">🔒</div>隐私设置</div>
-            <div class="menu-option"><div class="menu-icon">💾</div>数据备份</div>
-            <div class="menu-option"><div class="menu-icon">📶</div>网络设置</div>
-            <div class="menu-option"><div class="menu-icon">💽</div>存储管理</div>
-            <div class="menu-option"><div class="menu-icon">🔧</div>开发者选项</div>
         </div>
     </div>
 
@@ -523,13 +359,6 @@
             let initialX, initialY;
             let initialLeft, initialTop;
             let isDragging = false; // 跟踪是否正在拖拽
-            
-            // 强制隐藏删除区域
-            const deleteZone = document.getElementById('deleteZone');
-            if (deleteZone) {
-                deleteZone.style.display = 'none';
-                deleteZone.classList.remove('drag-over');
-            }
             
             // 创建组件管理器
             const widgetManager = new WidgetManager(desktopGrid);
@@ -629,39 +458,16 @@
                     clearTimeout(longPressTimer);
                 });
                 
-                // 左上角退出按钮
-                const exitEditBtn = document.getElementById('exitEditModeBtn');
-                if (exitEditBtn) {
-                    exitEditBtn.addEventListener('click', function(e) {
-                        exitEditMode();
-                        e.stopPropagation(); // 防止触发其他点击事件
-                    });
-                }
-                
                 // 点击空白区域添加组件
                 desktopGrid.addEventListener('click', function(e) {
-                    // 只在编辑模式下且点击的不是组件和控制按钮时显示组件菜单
-                    if (editMode && 
-                        !e.target.closest('.widget') && 
-                        !e.target.closest('.edit-controls') && 
-                        !e.target.closest('#widgetMenu')) {
-                        
-                        showWidgetMenu(e.clientX, e.clientY);
-                    }
+                    // 移除在编辑模式下点击显示组件菜单的逻辑
+                    // 编辑模式下组件菜单只能通过右滑打开
                 });
                 
                 // 触摸版本
                 desktopGrid.addEventListener('touchend', function(e) {
-                    // 确保这是一个轻触而不是拖动结束
-                    if (editMode && 
-                        !isDragging && 
-                        !e.target.closest('.widget') && 
-                        !e.target.closest('.edit-controls') && 
-                        !e.target.closest('#widgetMenu')) {
-                        
-                        const touch = e.changedTouches[0];
-                        showWidgetMenu(touch.clientX, touch.clientY);
-                    }
+                    // 移除在编辑模式下点击显示组件菜单的逻辑
+                    // 编辑模式下组件菜单只能通过右滑打开
                 });
                 
                 // 添加组件拖拽事件 - 使用HTML5拖放API
@@ -682,16 +488,9 @@
                 // 设置编辑模式标志
                 editMode = true;
                 
-                // 显示控制按钮
-                const exitEditBtn = document.getElementById('exitEditModeBtn');
-                if (exitEditBtn) {
-                    exitEditBtn.style.display = 'block';
-                }
-                
-                // 显示删除区域
-                const deleteZone = document.getElementById('deleteZone');
-                if (deleteZone) {
-                    deleteZone.style.display = 'flex';
+                // 通知父页面进入编辑模式
+                if (window.parent && window.parent.onDesktopEditModeChange) {
+                    window.parent.onDesktopEditModeChange(true);
                 }
                 
                 // 添加编辑模式样式
@@ -703,28 +502,83 @@
                     widget.setAttribute('draggable', 'true');
                     widget.classList.add('widget-edit-mode');
                     
+                    // 添加拖动指示器
+                    if (!widget.querySelector('.drag-indicator')) {
+                        const dragIndicator = document.createElement('div');
+                        dragIndicator.className = 'drag-indicator';
+                        widget.appendChild(dragIndicator);
+                    }
+                    
                     // 添加拖拽事件监听器 - PC
                     widget.addEventListener('dragstart', handleDragStart);
                     widget.addEventListener('dragend', handleDragEnd);
                     
                     // 添加触摸拖拽监听器 - 移动设备
-                    widget.addEventListener('touchstart', handleDragStart);
+                    // 改为长按触发拖动，而不是直接在touchstart时触发
+                    widget.addEventListener('touchstart', function(e) {
+                        // 只在编辑模式下启用长按
+                        if (!editMode) return;
+                        
+                        const element = this;
+                        // 创建长按计时器
+                        const longPressTimer = setTimeout(function() {
+                            // 长按超过指定时间，触发拖动
+                            handleDragStart.call(element, e);
+                        }, 300); // 300ms为长按判定时间
+                        
+                        // 存储长按计时器，以便在touchend时清除
+                        this.longPressTimer = longPressTimer;
+                        
+                        // 记录起始触摸位置，用于判断是否有明显移动
+                        this.touchStartX = e.touches[0].clientX;
+                        this.touchStartY = e.touches[0].clientY;
+                    });
+                    
+                    // 添加触摸移动监听，如果在长按前有明显移动，取消长按计时器
+                    widget.addEventListener('touchmove', function(e) {
+                        // 如果已经处于拖动状态，不做处理
+                        if (isDragging && currentDragWidget) return;
+                        
+                        // 计算移动距离
+                        const moveX = Math.abs(e.touches[0].clientX - this.touchStartX);
+                        const moveY = Math.abs(e.touches[0].clientY - this.touchStartY);
+                        
+                        // 如果移动超过阈值，取消长按
+                        if (moveX > 10 || moveY > 10) {
+                            clearTimeout(this.longPressTimer);
+                        }
+                    });
+                    
+                    // 添加触摸结束监听，清除长按计时器
+                    widget.addEventListener('touchend', function(e) {
+                        // 清除长按计时器
+                        if (this.longPressTimer) {
+                            clearTimeout(this.longPressTimer);
+                        }
+                    });
                 });
                 
+                // 添加编辑模式提示
+                const instructions = document.querySelector('.instructions');
+                if (instructions) {
+                    instructions.style.display = 'block';
+                    instructions.innerHTML = `
+                        <h3>编辑模式已启用</h3>
+                        <p>长按并拖动组件可以移动位置</p>
+                        <p>蓝色闪烁指示器表示组件可拖动</p>
+                    `;
+                    setTimeout(() => {
+                        instructions.style.display = 'none';
+                    }, 3000);
+                }
+                
                 // 添加文档级别的触摸移动和结束监听
-                document.addEventListener('touchmove', handleTouchMove);
-                document.addEventListener('touchend', handleTouchEnd);
+                document.addEventListener('touchmove', handleTouchMove, { passive: false });
+                document.addEventListener('touchend', handleTouchEnd, { passive: false });
                 
                 // 为网格添加拖放区域事件
                 desktopGrid.addEventListener('dragover', handleDragOver);
                 desktopGrid.addEventListener('drop', handleDrop);
-                
-                // 为删除区域添加拖放事件
-                if (deleteZone) {
-                    deleteZone.addEventListener('dragover', handleDeleteZoneOver);
-                    deleteZone.addEventListener('dragleave', handleDeleteZoneLeave);
-                    deleteZone.addEventListener('drop', handleDeleteZoneDrop);
-                }
                 
                 // 保存当前布局以便在取消时恢复
                 saveCurrentLayout();
@@ -737,17 +591,9 @@
                 // 关闭编辑模式标志
                 editMode = false;
                 
-                // 隐藏控制按钮
-                const exitEditBtn = document.getElementById('exitEditModeBtn');
-                if (exitEditBtn) {
-                    exitEditBtn.style.display = 'none';
-                }
-                
-                // 隐藏删除区域
-                const deleteZone = document.getElementById('deleteZone');
-                if (deleteZone) {
-                    deleteZone.style.display = 'none';
-                    deleteZone.classList.remove('drag-over');
+                // 通知父页面退出编辑模式
+                if (window.parent && window.parent.onDesktopEditModeChange) {
+                    window.parent.onDesktopEditModeChange(false);
                 }
                 
                 // 移除编辑模式样式
@@ -759,12 +605,15 @@
                     widget.removeAttribute('draggable');
                     widget.classList.remove('widget-edit-mode');
                     
+                    // 移除拖动指示器
+                    const indicator = widget.querySelector('.drag-indicator');
+                    if (indicator) {
+                        widget.removeChild(indicator);
+                    }
+                    
                     // 移除PC拖拽事件监听器
                     widget.removeEventListener('dragstart', handleDragStart);
                     widget.removeEventListener('dragend', handleDragEnd);
-                    
-                    // 移除触摸拖拽监听器
-                    widget.removeEventListener('touchstart', handleDragStart);
                 });
                 
                 // 移除文档级别的触摸移动和结束监听
@@ -775,48 +624,8 @@
                 desktopGrid.removeEventListener('dragover', handleDragOver);
                 desktopGrid.removeEventListener('drop', handleDrop);
                 
-                // 移除删除区域的拖放事件
-                if (deleteZone) {
-                    deleteZone.removeEventListener('dragover', handleDeleteZoneOver);
-                    deleteZone.removeEventListener('dragleave', handleDeleteZoneLeave);
-                    deleteZone.removeEventListener('drop', handleDeleteZoneDrop);
-                }
-                
                 // 保存最终布局
                 widgetManager.saveLayout();
-            }
-            
-            // 删除区域的拖拽事件处理
-            function handleDeleteZoneOver(e) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                this.classList.add('drag-over');
-            }
-            
-            function handleDeleteZoneLeave(e) {
-                this.classList.remove('drag-over');
-            }
-            
-            function handleDeleteZoneDrop(e) {
-                e.preventDefault();
-                const widgetId = e.dataTransfer.getData('text/plain');
-                const widget = document.getElementById(widgetId);
-                
-                if (widget) {
-                    console.log(`删除组件: ${widgetId}`);
-                    
-                    // 从DOM中移除组件
-                    widget.remove();
-                    
-                    // 从管理器中移除组件
-                    widgetManager.removeWidget(widgetId);
-                    
-                    // 保存布局
-                    widgetManager.saveLayout();
-                }
-                
-                // 移除拖拽样式
-                this.classList.remove('drag-over');
             }
             
             // 组件拖拽变量
@@ -826,6 +635,11 @@
             
             // 组件拖拽开始 - 支持PC和移动设备
             function handleDragStart(e) {
+                // 确保在编辑模式下才能拖拽
+                if (!editMode) {
+                    return;
+                }
+                
                 // PC设备拖拽支持
                 if (e.dataTransfer) {
                     e.dataTransfer.setData('text/plain', this.id);
@@ -839,12 +653,30 @@
                 
                 // 根据事件类型获取客户端坐标
                 let clientX, clientY;
-                if (e.type === 'touchstart') {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
+                if (e.type === 'touchstart' || (e.touches && e.touches.length)) {
+                    // 触摸事件处理
+                    e.stopPropagation(); // 阻止事件冒泡到document
+                    if (e.cancelable) {
+                        e.preventDefault(); // 阻止默认行为（如滚动）
+                    }
+                    // 获取触摸坐标，处理直接传入touchstart事件或从setTimeout调用的情况
+                    const touch = e.touches ? e.touches[0] : e.changedTouches[0];
+                    clientX = touch.clientX;
+                    clientY = touch.clientY;
+                    // 设置拖拽状态
+                    isDragging = true;
+                    currentDragWidget = this;
+                    
+                    // 暴露拖动状态给父窗口
+                    window.isDragging = true;
+                    console.log('触摸开始拖拽，设置isDragging=true');
                 } else {
                     clientX = e.clientX;
                     clientY = e.clientY;
+                    isDragging = true;
+                    currentDragWidget = this;
+                    window.isDragging = true;
+                    console.log('鼠标开始拖拽，设置isDragging=true');
                 }
                 
                 const offsetX = clientX - rect.left;
@@ -854,18 +686,11 @@
                 this.dataset.dragOffsetX = offsetX;
                 this.dataset.dragOffsetY = offsetY;
                 
-                // 设置当前拖拽组件和状态（用于触摸设备）
-                currentDragWidget = this;
-                isDragging = true;
+                // 设置拖拽相关变量
                 dragOffsetX = offsetX;
                 dragOffsetY = offsetY;
                 
                 console.log(`开始拖拽组件: ${this.id}, 偏移量: X=${offsetX}, Y=${offsetY}`);
-                
-                // 阻止触摸设备上的滚动
-                if (e.type === 'touchstart') {
-                    e.preventDefault();
-                }
             }
             
             // 组件拖拽结束
@@ -955,123 +780,211 @@
                 console.log('保存当前布局');
             }
             
-            // 显示组件选择菜单
-            function showWidgetMenu(x, y) {
-                // 使用顶层窗口的菜单元素，而不是当前iframe内的
-                const topWindow = window.top || window;
-                let menu, overlay, widgetList;
+            // 添加与父页面通信的函数，用于右滑打开菜单
+            function initSwipeGesture() {
+                // 初始化变量
+                let startX = 0;
+                let startTime = 0;
+                const minDistance = 100; // 最小滑动距离
+                const maxTime = 500; // 最大滑动时间 (毫秒)
                 
-                // 检查顶层窗口是否存在菜单元素
-                if (topWindow.document.getElementById('widgetMenu')) {
-                    menu = topWindow.document.getElementById('widgetMenu');
-                    overlay = topWindow.document.getElementById('widgetMenuOverlay');
-                    widgetList = topWindow.document.getElementById('widgetList');
+                // 滑动开始时记录位置和时间
+                function handleTouchStart(e) {
+                    // 只有当处于实际拖动状态时才屏蔽右滑
+                    if (isDragging && currentDragWidget) {
+                        return;
+                    }
+                    
+                    console.log('iframe内触摸开始');
+                    startX = e.touches[0].clientX;
+                    startTime = Date.now();
+                }
+                
+                // 滑动结束时检查是否符合右滑条件
+                function handleTouchEnd(e) {
+                    // 只有当处于实际拖动状态时才屏蔽右滑
+                    if (isDragging && currentDragWidget) {
+                        return;
+                    }
+                    
+                    console.log('iframe内触摸结束');
+                    
+                    // 确保这是一次单指滑动
+                    if (e.changedTouches.length !== 1) return;
+                    
+                    const endX = e.changedTouches[0].clientX;
+                    const endTime = Date.now();
+                    const deltaX = endX - startX;
+                    const deltaTime = endTime - startTime;
+                    
+                    // 如果是从右向左的快速滑动
+                    if (deltaX < -minDistance && deltaTime < maxTime) {
+                        console.log('iframe内检测到左滑手势，通知父页面');
+                        // 通知父页面显示菜单
+                        if (window.parent && window.parent.showCombinedMenu) {
+                            window.parent.showCombinedMenu();
+                        }
+                    }
+                }
+                
+                // 添加触摸事件监听
+                document.addEventListener('touchstart', handleTouchStart, { passive: true });
+                document.addEventListener('touchend', handleTouchEnd, { passive: true });
+            }
+            
+            // 触摸拖拽处理 - 移动
+            function handleTouchMove(e) {
+                // 如果没有正在拖拽的组件，直接返回
+                if (!isDragging || !currentDragWidget) {
+                    return;
+                }
+                
+                if (e.cancelable) {
+                    e.preventDefault(); // 阻止滚动
+                }
+                
+                // 获取当前触摸位置 - iframe内部坐标
+                const touch = e.touches[0];
+                const clientX = touch.clientX;
+                const clientY = touch.clientY;
+                
+                // 转换为父窗口坐标系
+                let parentX = clientX;
+                let parentY = clientY;
+                
+                // 如果在iframe内，需要加上iframe的偏移量
+                if (window.frameElement) {
+                    const frameRect = window.frameElement.getBoundingClientRect();
+                    parentX += frameRect.left;
+                    parentY += frameRect.top;
+                    console.log(`转换坐标：iframe内(${clientX}, ${clientY}) -> 父窗口(${parentX}, ${parentY})`);
+                }
+                
+                // 通知父窗口组件位置，用于检测是否悬停在删除区域上
+                if (window.parent && window.parent.checkDeleteWidget) {
+                    // 只检查，不删除 - 使用父窗口坐标系
+                    window.parent.checkDeleteWidget(parentX, parentY, currentDragWidget.id);
+                }
+                
+                // 计算相对于桌面的位置
+                const gridRect = desktopGrid.getBoundingClientRect();
+                const relX = clientX - gridRect.left;
+                const relY = clientY - gridRect.top;
+                
+                // 考虑拖拽偏移量
+                const adjX = relX - dragOffsetX;
+                const adjY = relY - dragOffsetY;
+                
+                // 计算单元格尺寸
+                const cellWidth = desktopGrid.clientWidth / 12;
+                const cellHeight = desktopGrid.clientHeight / 6;
+                
+                // 计算网格位置
+                const col = Math.floor(adjX / cellWidth);
+                const row = Math.floor(adjY / cellHeight);
+                
+                // 获取组件尺寸
+                const width = parseInt(currentDragWidget.dataset.width);
+                const height = parseInt(currentDragWidget.dataset.height);
+                
+                // 确保不超出边界
+                const finalCol = Math.max(0, Math.min(col, 12 - width));
+                const finalRow = Math.max(0, Math.min(row, 6 - height));
+                
+                // 更新位置
+                currentDragWidget.style.left = `${finalCol * cellWidth}px`;
+                currentDragWidget.style.top = `${finalRow * cellHeight}px`;
+                
+                // 更新数据属性
+                currentDragWidget.dataset.col = finalCol;
+                currentDragWidget.dataset.row = finalRow;
+            }
+            
+            // 触摸拖拽处理 - 结束
+            function handleTouchEnd(e) {
+                // 如果没有正在拖拽的组件，直接返回
+                if (!isDragging || !currentDragWidget) {
+                    return;
+                }
+                
+                // 阻止默认行为
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
+
+                // 获取当前触摸位置 - iframe内部坐标
+                const touch = e.changedTouches[0];
+                const clientX = touch.clientX;
+                const clientY = touch.clientY;
+                
+                // 转换为父窗口坐标系
+                let parentX = clientX;
+                let parentY = clientY;
+                
+                // 如果在iframe内，需要加上iframe的偏移量
+                if (window.frameElement) {
+                    const frameRect = window.frameElement.getBoundingClientRect();
+                    parentX += frameRect.left;
+                    parentY += frameRect.top;
+                    console.log(`转换坐标：iframe内(${clientX}, ${clientY}) -> 父窗口(${parentX}, ${parentY})`);
+                }
+
+                console.log('触摸结束，检查删除', parentX, parentY, currentDragWidget.id);
+                
+                // 通知父页面检查是否应该删除组件 - 使用父窗口坐标系
+                let shouldDelete = false;
+                if (window.parent && window.parent.checkDeleteWidget) {
+                    shouldDelete = window.parent.checkDeleteWidget(parentX, parentY, currentDragWidget.id);
+                    console.log('父窗口返回删除结果:', shouldDelete);
+                    
+                    if (shouldDelete) {
+                        console.log('删除组件:', currentDragWidget.id);
+                        // 从DOM中移除组件
+                        currentDragWidget.remove();
+                        
+                        // 从管理器中移除组件
+                        widgetManager.removeWidget(currentDragWidget.id);
+                        
+                        // 保存布局
+                        widgetManager.saveLayout();
+                    } else {
+                        // 正常放置，更新组件配置
+                        const widgetId = currentDragWidget.id;
+                        const finalCol = parseInt(currentDragWidget.dataset.col);
+                        const finalRow = parseInt(currentDragWidget.dataset.row);
+                        
+                        // 更新组件配置
+                        const widgetObj = widgetManager.widgets.find(w => w.getId() === widgetId);
+                        if (widgetObj && widgetObj.config) {
+                            widgetObj.config.col = finalCol;
+                            widgetObj.config.row = finalRow;
+                        }
+                    }
                 } else {
-                    // 如果顶层没有，则创建
-                    overlay = topWindow.document.createElement('div');
-                    overlay.id = 'widgetMenuOverlay';
-                    overlay.style.position = 'fixed';
-                    overlay.style.top = '0';
-                    overlay.style.left = '0';
-                    overlay.style.width = '100vw';
-                    overlay.style.height = '100vh';
-                    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                    overlay.style.zIndex = '99999';
+                    console.log('父窗口没有提供checkDeleteWidget函数');
+                    // 如果父页面没有提供检查函数，就只更新位置
+                    const widgetId = currentDragWidget.id;
+                    const finalCol = parseInt(currentDragWidget.dataset.col);
+                    const finalRow = parseInt(currentDragWidget.dataset.row);
                     
-                    menu = topWindow.document.createElement('div');
-                    menu.id = 'widgetMenu';
-                    menu.style.position = 'fixed';
-                    menu.style.top = '0';
-                    menu.style.right = '0';
-                    menu.style.width = '280px';
-                    menu.style.height = '100vh';
-                    menu.style.backgroundColor = 'white';
-                    menu.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.2)';
-                    menu.style.zIndex = '100000';
-                    menu.style.overflowY = 'auto';
-                    
-                    const titleDiv = topWindow.document.createElement('div');
-                    titleDiv.style.fontWeight = 'bold';
-                    titleDiv.style.padding = '15px';
-                    titleDiv.style.backgroundColor = '#f5f5f5';
-                    titleDiv.style.borderBottom = '1px solid #e0e0e0';
-                    titleDiv.style.display = 'flex';
-                    titleDiv.style.justifyContent = 'space-between';
-                    titleDiv.style.alignItems = 'center';
-                    titleDiv.innerHTML = '添加组件';
-                    
-                    const closeBtn = topWindow.document.createElement('button');
-                    closeBtn.style.background = 'none';
-                    closeBtn.style.border = 'none';
-                    closeBtn.style.fontSize = '18px';
-                    closeBtn.style.cursor = 'pointer';
-                    closeBtn.style.color = '#888';
-                    closeBtn.innerHTML = '×';
-                    closeBtn.onclick = hideWidgetMenu;
-                    
-                    titleDiv.appendChild(closeBtn);
-                    menu.appendChild(titleDiv);
-                    
-                    widgetList = topWindow.document.createElement('div');
-                    widgetList.id = 'widgetList';
-                    widgetList.style.padding = '10px';
-                    menu.appendChild(widgetList);
-                    
-                    topWindow.document.body.appendChild(overlay);
-                    topWindow.document.body.appendChild(menu);
+                    // 更新组件配置
+                    const widgetObj = widgetManager.widgets.find(w => w.getId() === widgetId);
+                    if (widgetObj && widgetObj.config) {
+                        widgetObj.config.col = finalCol;
+                        widgetObj.config.row = finalRow;
+                    }
                 }
                 
-                // 清空现有选项
-                if (widgetList) {
-                    widgetList.innerHTML = '';
-                    
-                    // 显示硬编码的组件选项
-                    widgetList.innerHTML = `
-                        <div class="widget-option system-widget" data-widget-id="system.small">
-                            <div class="widget-option-icon">1x1</div>
-                            <div>小组件</div>
-                        </div>
-                        <div class="widget-option system-widget" data-widget-id="system.medium">
-                            <div class="widget-option-icon">3x1</div>
-                            <div>中组件</div>
-                        </div>
-                        <div class="widget-option system-widget" data-widget-id="system.large">
-                            <div class="widget-option-icon">4x2</div>
-                            <div>大组件</div>
-                        </div>
-                        <div class="widget-option user-widget" data-widget-id="user.custom">
-                            <div class="widget-option-icon">2x2</div>
-                            <div>自定义组件</div>
-                        </div>
-                        <div class="widget-option system-widget" data-widget-id="system.model-name">
-                            <div class="widget-option-icon">3x1</div>
-                            <div>模型名称</div>
-                        </div>
-                        <div class="widget-option system-widget" data-widget-id="system.model-image">
-                            <div class="widget-option-icon">4x3</div>
-                            <div>模型图片</div>
-                        </div>
-                    `;
-                    
-                    // 添加点击事件
-                    const options = widgetList.querySelectorAll('.widget-option');
-                    options.forEach(option => {
-                        option.addEventListener('click', function() {
-                            const widgetId = this.dataset.widgetId;
-                            addWidgetAtPosition(widgetId, x, y);
-                            hideWidgetMenu();
-                        });
-                    });
-                }
+                // 保存布局
+                widgetManager.saveLayout();
                 
-                // 显示菜单
-                if (overlay && menu) {
-                    overlay.style.display = 'block';
-                    menu.style.right = '0';
-                    
-                    // 添加遮罩点击事件
-                    overlay.onclick = hideWidgetMenu;
-                }
+                // 移除拖拽相关样式和状态
+                currentDragWidget.classList.remove('dragging');
+                isDragging = false;
+                window.isDragging = false; // 更新暴露给父窗口的状态
+                currentDragWidget = null;
+                
+                console.log('拖拽状态已重置');
             }
             
             // 在指定位置添加组件
@@ -1193,281 +1106,80 @@
                     element.classList.add('widget-edit-mode');
                     element.addEventListener('dragstart', handleDragStart);
                     element.addEventListener('dragend', handleDragEnd);
+                    
+                    // 对新添加的组件也使用长按触发拖动
+                    element.addEventListener('touchstart', function(e) {
+                        // 只在编辑模式下启用长按
+                        if (!editMode) return;
+                        
+                        const elementThis = this;
+                        // 创建长按计时器
+                        const longPressTimer = setTimeout(function() {
+                            // 长按超过指定时间，触发拖动
+                            handleDragStart.call(elementThis, e);
+                        }, 300); // 300ms为长按判定时间
+                        
+                        // 存储长按计时器，以便在touchend时清除
+                        this.longPressTimer = longPressTimer;
+                        
+                        // 记录起始触摸位置，用于判断是否有明显移动
+                        this.touchStartX = e.touches[0].clientX;
+                        this.touchStartY = e.touches[0].clientY;
+                    });
+                    
+                    // 添加触摸移动监听，如果在长按前有明显移动，取消长按计时器
+                    element.addEventListener('touchmove', function(e) {
+                        // 如果已经处于拖动状态，不做处理
+                        if (isDragging && currentDragWidget) return;
+                        
+                        // 计算移动距离
+                        const moveX = Math.abs(e.touches[0].clientX - this.touchStartX);
+                        const moveY = Math.abs(e.touches[0].clientY - this.touchStartY);
+                        
+                        // 如果移动超过阈值，取消长按
+                        if (moveX > 10 || moveY > 10) {
+                            clearTimeout(this.longPressTimer);
+                        }
+                    });
+                    
+                    // 添加触摸结束监听，清除长按计时器
+                    element.addEventListener('touchend', function(e) {
+                        // 清除长按计时器
+                        if (this.longPressTimer) {
+                            clearTimeout(this.longPressTimer);
+                        }
+                    });
                 }
                 
                 return widget;
             }
             
-            // 初始化滑动手势识别
-            function initSwipeGesture() {
-                let startX = 0;
-                let startTime = 0;
-                const minDistance = 100; // 最小滑动距离
-                const maxTime = 500; // 最大滑动时间 (毫秒)
-                
-                // 添加测试按钮（仅用于调试）
-                const testBtn = document.createElement('button');
-                testBtn.textContent = '测试AFC菜单';
-                testBtn.style.position = 'fixed';
-                testBtn.style.bottom = '10px';
-                testBtn.style.right = '10px';
-                testBtn.style.zIndex = '9999';
-                testBtn.style.padding = '10px';
-                testBtn.style.backgroundColor = '#4CAF50';
-                testBtn.style.color = 'white';
-                testBtn.style.border = 'none';
-                testBtn.style.borderRadius = '5px';
-                
-                testBtn.onclick = function() {
-                    console.log('测试按钮点击');
-                    showAfcMenu();
-                };
-                
-                document.body.appendChild(testBtn);
-                
-                // 滑动开始时记录位置和时间
-                function handleTouchStart(e) {
-                    console.log('触摸开始');
-                    // 只有在未处于编辑模式且没有其他菜单显示时才启用滑动
-                    const widgetMenu = document.getElementById('widgetMenu');
-                    const afcMenu = document.getElementById('afcMenu');
-                    
-                    if (editMode) {
-                        console.log('编辑模式下不响应滑动手势');
-                        return;
-                    }
-                    
-                    if ((widgetMenu && widgetMenu.style.right === '0px')) {
-                        console.log('组件菜单已打开，不响应滑动手势');
-                        return;
-                    }
-                    
-                    if ((afcMenu && afcMenu.style.right === '0px')) {
-                        console.log('AFC菜单已打开，不响应滑动手势');
-                        return;
-                    }
-                    
-                    startX = e.touches[0].clientX;
-                    startTime = Date.now();
-                    console.log(`记录起始位置: X=${startX}, 时间=${startTime}`);
-                }
-                
-                // 滑动结束时检查是否符合左滑条件
-                function handleTouchEnd(e) {
-                    console.log('触摸结束');
-                    // 只有在未处于编辑模式且没有其他菜单显示时才启用滑动
-                    const widgetMenu = document.getElementById('widgetMenu');
-                    const afcMenu = document.getElementById('afcMenu');
-                    
-                    if (editMode || 
-                        (widgetMenu && widgetMenu.style.right === '0px') ||
-                        (afcMenu && afcMenu.style.right === '0px')) {
-                        console.log('当前状态不响应滑动手势');
-                        return;
-                    }
-                    
-                    // 确保这是一次单指滑动
-                    if (e.changedTouches.length !== 1) {
-                        console.log('非单指滑动，忽略');
-                        return;
-                    }
-                    
-                    const endX = e.changedTouches[0].clientX;
-                    const endTime = Date.now();
-                    const deltaX = endX - startX;
-                    const deltaTime = endTime - startTime;
-                    
-                    console.log(`滑动距离: ${deltaX}px, 时间: ${deltaTime}ms`);
-                    console.log(`判断条件: 距离需大于${minDistance}px, 时间需小于${maxTime}ms`);
-                    
-                    // 如果是从右向左的快速滑动，显示AFC菜单
-                    if (deltaX < -minDistance && deltaTime < maxTime) {
-                        console.log('检测到左滑手势，显示AFC菜单');
-                        showAfcMenu();
-                    }
-                    
-                    // 如果是从左向右的快速滑动，隐藏AFC菜单
-                    if (deltaX > minDistance && deltaTime < maxTime) {
-                        const menu = document.getElementById('afcMenu');
-                        if (menu && menu.style.right === '0px') {
-                            console.log('检测到右滑手势，隐藏AFC菜单');
-                            hideAfcMenu();
-                        }
-                    }
-                }
-                
-                // 添加触摸事件监听
-                document.addEventListener('touchstart', handleTouchStart, { passive: true });
-                document.addEventListener('touchend', handleTouchEnd, { passive: true });
-                
-                console.log('滑动手势识别已初始化');
+            // 导出编辑模式状态，供父页面判断
+            function isEditMode() {
+                return editMode;
             }
             
-            // 显示AFC菜单
-            function showAfcMenu() {
-                console.log('显示AFC菜单');
+            // 接收并处理来自父页面的添加组件请求
+            function addWidgetFromParent(widgetId) {
+                console.log(`从父页面请求添加组件: ${widgetId}`);
                 
-                // 直接获取元素
-                let menu = document.getElementById('afcMenu');
-                let overlay = document.getElementById('afcMenuOverlay');
-                
-                if (!menu || !overlay) {
-                    console.error('AFC菜单元素不存在');
-                    return;
+                // 如果不在编辑模式，先切换到编辑模式
+                if (!editMode) {
+                    enterEditMode();
                 }
                 
-                console.log('找到AFC菜单元素，准备显示');
+                // 在视口中央添加组件
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                addWidgetAtPosition(widgetId, centerX, centerY);
                 
-                // 显示菜单和遮罩
-                overlay.style.display = 'block';
-                menu.style.right = '0';
-                
-                // 添加遮罩点击事件
-                overlay.onclick = hideAfcMenu;
-                
-                console.log('AFC菜单已显示');
+                return true;
             }
             
-            // 隐藏AFC菜单
-            function hideAfcMenu() {
-                console.log('隐藏AFC菜单');
-                
-                // 直接获取元素
-                const menu = document.getElementById('afcMenu');
-                const overlay = document.getElementById('afcMenuOverlay');
-                
-                if (!menu || !overlay) {
-                    console.error('AFC菜单元素不存在');
-                    return;
-                }
-                
-                menu.style.right = '-300px';
-                overlay.style.display = 'none';
-                
-                console.log('AFC菜单已隐藏');
-            }
-            
-            // 隐藏组件选择菜单
-            function hideWidgetMenu() {
-                const topWindow = window.top || window;
-                
-                // 尝试获取顶层窗口的菜单元素
-                const menu = topWindow.document.getElementById('widgetMenu');
-                const overlay = topWindow.document.getElementById('widgetMenuOverlay');
-                
-                if (menu && overlay) {
-                    // 使用CSS样式隐藏
-                    menu.style.right = '-300px';
-                    overlay.style.display = 'none';
-                }
-                
-                console.log('隐藏组件选择菜单');
-            }
-            
-            // 触摸拖拽处理 - 移动
-            function handleTouchMove(e) {
-                // 如果没有正在拖拽的组件，直接返回
-                if (!isDragging || !currentDragWidget) {
-                    return;
-                }
-                
-                e.preventDefault(); // 阻止滚动
-                
-                // 获取当前触摸位置
-                const touch = e.touches[0];
-                const clientX = touch.clientX;
-                const clientY = touch.clientY;
-                
-                // 计算相对于桌面的位置
-                const gridRect = desktopGrid.getBoundingClientRect();
-                const relX = clientX - gridRect.left;
-                const relY = clientY - gridRect.top;
-                
-                // 考虑拖拽偏移量
-                const adjX = relX - dragOffsetX;
-                const adjY = relY - dragOffsetY;
-                
-                // 检查是否在删除区域上方
-                const deleteZone = document.getElementById('deleteZone');
-                if (deleteZone) {
-                    const deleteRect = deleteZone.getBoundingClientRect();
-                    if (clientY >= deleteRect.top && clientY <= deleteRect.bottom &&
-                        clientX >= deleteRect.left && clientX <= deleteRect.right) {
-                        deleteZone.classList.add('drag-over');
-                    } else {
-                        deleteZone.classList.remove('drag-over');
-                    }
-                }
-                
-                // 计算单元格尺寸
-                const cellWidth = desktopGrid.clientWidth / 12;
-                const cellHeight = desktopGrid.clientHeight / 6;
-                
-                // 计算网格位置
-                const col = Math.floor(adjX / cellWidth);
-                const row = Math.floor(adjY / cellHeight);
-                
-                // 获取组件尺寸
-                const width = parseInt(currentDragWidget.dataset.width);
-                const height = parseInt(currentDragWidget.dataset.height);
-                
-                // 确保不超出边界
-                const finalCol = Math.max(0, Math.min(col, 12 - width));
-                const finalRow = Math.max(0, Math.min(row, 6 - height));
-                
-                // 更新位置
-                currentDragWidget.style.left = `${finalCol * cellWidth}px`;
-                currentDragWidget.style.top = `${finalRow * cellHeight}px`;
-                
-                // 更新数据属性
-                currentDragWidget.dataset.col = finalCol;
-                currentDragWidget.dataset.row = finalRow;
-            }
-            
-            // 触摸拖拽处理 - 结束
-            function handleTouchEnd(e) {
-                // 如果没有正在拖拽的组件，直接返回
-                if (!isDragging || !currentDragWidget) {
-                    return;
-                }
-                
-                // 检查是否在删除区域上方
-                const deleteZone = document.getElementById('deleteZone');
-                if (deleteZone && deleteZone.classList.contains('drag-over')) {
-                    console.log(`删除组件: ${currentDragWidget.id}`);
-                    
-                    // 从DOM中移除组件
-                    currentDragWidget.remove();
-                    
-                    // 从管理器中移除组件
-                    widgetManager.removeWidget(currentDragWidget.id);
-                    
-                    // 删除结束，移除样式
-                    deleteZone.classList.remove('drag-over');
-                } else {
-                    // 正常放置，更新组件配置
-                    const widgetId = currentDragWidget.id;
-                    const finalCol = parseInt(currentDragWidget.dataset.col);
-                    const finalRow = parseInt(currentDragWidget.dataset.row);
-                    
-                    console.log(`放置组件: ${widgetId} 在位置 列=${finalCol}, 行=${finalRow}`);
-                    
-                    // 更新组件配置
-                    const widgetObj = widgetManager.widgets.find(w => w.getId() === widgetId);
-                    if (widgetObj && widgetObj.config) {
-                        widgetObj.config.col = finalCol;
-                        widgetObj.config.row = finalRow;
-                    }
-                }
-                
-                // 保存布局
-                widgetManager.saveLayout();
-                
-                // 移除拖拽相关样式和状态
-                currentDragWidget.classList.remove('dragging');
-                isDragging = false;
-                currentDragWidget = null;
-            }
+            // 将函数暴露到全局作用域，使父页面可以访问
+            window.isEditMode = isEditMode;
+            window.addWidgetFromParent = addWidgetFromParent;
+            window.exitEditMode = exitEditMode;
         });
     </script>
 </body>
