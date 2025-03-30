@@ -1,0 +1,32 @@
+[
+  {
+    "id": "small",
+    "name": "小尺寸示例",
+    "description": "1x1尺寸的示例小组件",
+    "file": "small/index.js"
+  },
+  {
+    "id": "medium",
+    "name": "中尺寸示例",
+    "description": "2x1尺寸的示例小组件",
+    "file": "medium/index.js"
+  },
+  {
+    "id": "large",
+    "name": "大尺寸示例",
+    "description": "2x2尺寸的示例小组件",
+    "file": "large/index.js"
+  },
+  {
+    "id": "model-name",
+    "name": "机型名称",
+    "description": "显示当前机型名称的组件",
+    "file": "model-name/index.js"
+  },
+  {
+    "id": "model-image",
+    "name": "机型图片",
+    "description": "显示当前机型图片的组件",
+    "file": "model-image/index.js"
+  }
+] 

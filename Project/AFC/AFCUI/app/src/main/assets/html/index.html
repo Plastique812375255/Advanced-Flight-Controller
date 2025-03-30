@@ -567,26 +567,6 @@
             // 初始化状态指示器
             initStatusIndicators();
             
-            // 添加测试按钮（仅用于调试）
-            const testBtn = document.createElement('button');
-            testBtn.textContent = '测试菜单';
-            testBtn.style.position = 'fixed';
-            testBtn.style.bottom = '10px';
-            testBtn.style.right = '10px';
-            testBtn.style.zIndex = '9999';
-            testBtn.style.padding = '10px';
-            testBtn.style.backgroundColor = '#4CAF50';
-            testBtn.style.color = 'white';
-            testBtn.style.border = 'none';
-            testBtn.style.borderRadius = '5px';
-            
-            testBtn.onclick = function() {
-                console.log('测试按钮点击');
-                showTestPanel();
-            };
-            
-            document.body.appendChild(testBtn);
-            
             // 创建测试面板
             createTestPanel();
         });

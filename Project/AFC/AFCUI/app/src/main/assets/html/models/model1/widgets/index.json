@@ -1,0 +1,14 @@
+[
+  {
+    "id": "model1-specific",
+    "name": "机型1专用插件",
+    "description": "仅适用于机型1的专用小组件",
+    "file": "model1-specific/index.js"
+  },
+  {
+    "id": "model1-feature",
+    "name": "机型1特性插件",
+    "description": "展示机型1特殊功能的小组件",
+    "file": "model1-feature/index.js"
+  }
+] 

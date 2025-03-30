@@ -1,0 +1,26 @@
+[
+  {
+    "id": "model1",
+    "name": "机型1",
+    "description": "第一种机型",
+    "version": "1.0.0",
+    "isPreinstalled": true,
+    "path": "model1"
+  },
+  {
+    "id": "model2",
+    "name": "机型2",
+    "description": "第二种机型",
+    "version": "1.0.0",
+    "isPreinstalled": true,
+    "path": "model2"
+  },
+  {
+    "id": "model3",
+    "name": "机型3",
+    "description": "可下载的机型",
+    "version": "1.0.0",
+    "isPreinstalled": false,
+    "downloadUrl": "https://example.com/models/model3.zip"
+  }
+] 

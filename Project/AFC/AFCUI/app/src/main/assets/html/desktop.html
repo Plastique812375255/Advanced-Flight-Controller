@@ -76,6 +76,10 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             overflow: hidden;
             transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: none; /* 禁止浏览器默认触摸操作 */
+            transform: none; /* 确保初始状态下没有变换 */
+            -webkit-user-select: none; /* 禁止文本选择 */
+            user-select: none;
         }
         
         .widget.selected {
@@ -85,45 +89,44 @@
         /* 编辑模式下的组件视觉效果 */
         .edit-mode .widget {
             cursor: move; /* 显示移动光标 */
+            -webkit-user-select: none; /* 禁止文本选择 - Webkit */
+            -moz-user-select: none; /* 禁止文本选择 - Firefox */
+            -ms-user-select: none; /* 禁止文本选择 - IE/Edge */
+            user-select: none; /* 禁止文本选择 - 标准 */
+            -webkit-touch-callout: none; /* 禁止长按菜单 - iOS Safari */
+            touch-action: none; /* 禁止浏览器默认触摸操作 */
         }
         
-        /* 编辑模式下组件悬停效果 */
-        .edit-mode .widget:hover {
+        /* 编辑模式下全局禁用文本选择和默认触摸行为 */
+        .edit-mode {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            touch-action: manipulation;
+        }
+        
+        /* 编辑模式下组件悬停效果 - 只在非拖动状态下应用 */
+        .edit-mode .widget:not(.dragging):hover {
             transform: scale(1.02); /* 轻微放大 */
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
         
         /* 编辑模式下组件拖动效果 */
         .edit-mode .widget.dragging {
-            transform: scale(1.05); /* 拖动时更明显的放大 */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            opacity: 0.9;
-            z-index: 1000; /* 确保拖动的组件在最上层 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+            opacity: 0.95;
+            z-index: 1000 !important; /* 确保拖动的组件在最上层 */
+            background-color: rgba(33, 150, 243, 0.1); /* 半透明背景，更明显 */
+            border: 2px solid #2196F3 !important; /* 蓝色实线边框 */
         }
         
-        /* 添加拖动指示器 */
-        .drag-indicator {
-            display: none;
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 15px;
-            height: 15px;
-            background-color: rgba(33, 150, 243, 0.7);
-            border-radius: 50%;
-            z-index: 5;
-            animation: pulse-indicator 1.5s infinite;
-        }
-        
-        /* 编辑模式下显示拖动指示器 */
-        .edit-mode .widget:hover .drag-indicator {
-            display: block;
-        }
-        
-        @keyframes pulse-indicator {
-            0% { transform: scale(0.8); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.8); opacity: 0.7; }
+        /* 长按触摸反馈样式，突出显示 */
+        .widget-touch-feedback {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 4px #2196F3, 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
         .widget-header {
@@ -360,6 +363,19 @@
             let initialLeft, initialTop;
             let isDragging = false; // 跟踪是否正在拖拽
             
+            // 添加全局触摸事件跟踪
+            document.addEventListener('touchstart', function(e) {
+                console.log('全局触摸开始', e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', function(e) {
+                console.log('全局触摸移动', e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function(e) {
+                console.log('全局触摸结束');
+            }, { passive: true });
+            
             // 创建组件管理器
             const widgetManager = new WidgetManager(desktopGrid);
             
@@ -458,27 +474,15 @@
                     clearTimeout(longPressTimer);
                 });
                 
-                // 点击空白区域添加组件
-                desktopGrid.addEventListener('click', function(e) {
-                    // 移除在编辑模式下点击显示组件菜单的逻辑
-                    // 编辑模式下组件菜单只能通过右滑打开
-                });
-                
-                // 触摸版本
-                desktopGrid.addEventListener('touchend', function(e) {
-                    // 移除在编辑模式下点击显示组件菜单的逻辑
-                    // 编辑模式下组件菜单只能通过右滑打开
-                });
-                
-                // 添加组件拖拽事件 - 使用HTML5拖放API
-                desktopGrid.addEventListener('mousedown', function(e) {
-                    // 在拖拽开始时不做任何事情，拖拽功能由draggable属性和dragstart事件处理
-                    // 所有组件在编辑模式中会自动获得draggable=true属性
-                });
-                
-                desktopGrid.addEventListener('touchstart', function(e) {
-                    // 也不做任何事情，拖拽功能由draggable属性和dragstart事件处理
-                });
+                // 使桌面容器不可滚动
+                desktopGrid.addEventListener('touchmove', function(e) {
+                    if (isDragging && currentDragWidget) {
+                        if (e.cancelable) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }
+                }, { passive: false });
             }
             
             // 进入编辑模式
@@ -502,84 +506,18 @@
                     widget.setAttribute('draggable', 'true');
                     widget.classList.add('widget-edit-mode');
                     
-                    // 添加拖动指示器
-                    if (!widget.querySelector('.drag-indicator')) {
-                        const dragIndicator = document.createElement('div');
-                        dragIndicator.className = 'drag-indicator';
-                        widget.appendChild(dragIndicator);
-                    }
-                    
                     // 添加拖拽事件监听器 - PC
                     widget.addEventListener('dragstart', handleDragStart);
                     widget.addEventListener('dragend', handleDragEnd);
                     
                     // 添加触摸拖拽监听器 - 移动设备
-                    // 改为长按触发拖动，而不是直接在touchstart时触发
-                    widget.addEventListener('touchstart', function(e) {
-                        // 只在编辑模式下启用长按
-                        if (!editMode) return;
-                        
-                        const element = this;
-                        // 创建长按计时器
-                        const longPressTimer = setTimeout(function() {
-                            // 长按超过指定时间，触发拖动
-                            console.log('长按触发拖动');
-                            
-                            // 复制触摸事件，以便传递给handleDragStart
-                            const simulatedEvent = {
-                                type: 'touchstart',
-                                target: element,
-                                touches: e.touches,
-                                preventDefault: function() {},
-                                stopPropagation: function() {}
-                            };
-                            
-                            // 调用拖动开始函数
-                            handleDragStart.call(element, simulatedEvent);
-                            
-                            // 添加后续触摸移动和结束事件的监听器
-                            if (!isAndroid()) {
-                                // 非安卓设备使用原来的处理方式
-                                document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                                document.addEventListener('touchend', handleTouchEnd, { passive: false });
-                            } else {
-                                // 安卓设备添加特殊处理
-                                console.log('安卓设备使用加强版触摸处理');
-                                document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                                document.addEventListener('touchend', handleTouchEnd, { passive: false });
-                            }
-                        }, 300); // 300ms为长按判定时间
-                        
-                        // 存储长按计时器，以便在touchend时清除
-                        this.longPressTimer = longPressTimer;
-                        
-                        // 记录起始触摸位置，用于判断是否有明显移动
-                        this.touchStartX = e.touches[0].clientX;
-                        this.touchStartY = e.touches[0].clientY;
-                    });
+                    widget.addEventListener('touchstart', startWidgetTouchHandler, { passive: false });
                     
                     // 添加触摸移动监听，如果在长按前有明显移动，取消长按计时器
-                    widget.addEventListener('touchmove', function(e) {
-                        // 如果已经处于拖动状态，不做处理
-                        if (isDragging && currentDragWidget) return;
-                        
-                        // 计算移动距离
-                        const moveX = Math.abs(e.touches[0].clientX - this.touchStartX);
-                        const moveY = Math.abs(e.touches[0].clientY - this.touchStartY);
-                        
-                        // 如果移动超过阈值，取消长按
-                        if (moveX > 10 || moveY > 10) {
-                            clearTimeout(this.longPressTimer);
-                        }
-                    });
+                    widget.addEventListener('touchmove', moveWidgetTouchHandler, { passive: false });
                     
                     // 添加触摸结束监听，清除长按计时器
-                    widget.addEventListener('touchend', function(e) {
-                        // 清除长按计时器
-                        if (this.longPressTimer) {
-                            clearTimeout(this.longPressTimer);
-                        }
-                    });
+                    widget.addEventListener('touchend', endWidgetTouchHandler, { passive: false });
                 });
                 
                 // 添加编辑模式提示
@@ -596,10 +534,6 @@
                     }, 3000);
                 }
                 
-                // 添加文档级别的触摸移动和结束监听
-                document.addEventListener('touchmove', handleTouchMove, { passive: false });
-                document.addEventListener('touchend', handleTouchEnd, { passive: false });
-                
                 // 为网格添加拖放区域事件
                 desktopGrid.addEventListener('dragover', handleDragOver);
                 desktopGrid.addEventListener('drop', handleDrop);
@@ -613,55 +547,55 @@
                 try {
                     console.log('desktop.html: 执行退出编辑模式函数');
                 
-                // 关闭编辑模式标志
-                editMode = false;
-                
+                    // 关闭编辑模式标志
+                    editMode = false;
+                    
                     // 通知父页面退出编辑模式
                     if (window.parent && window.parent.onDesktopEditModeChange) {
                         console.log('desktop.html: 通知父页面退出编辑模式');
                         window.parent.onDesktopEditModeChange(false);
                     } else {
                         console.error('desktop.html: 无法找到父页面的onDesktopEditModeChange函数');
-                }
-                
-                // 移除编辑模式样式
-                desktopGrid.classList.remove('edit-mode');
+                    }
                     
-                    console.log('desktop.html: 移除组件的编辑模式属性');
-                
-                // 移除组件的可拖动属性
-                const widgets = document.querySelectorAll('.widget');
-                widgets.forEach(widget => {
-                    widget.removeAttribute('draggable');
-                    widget.classList.remove('widget-edit-mode');
+                    // 移除编辑模式样式
+                    desktopGrid.classList.remove('edit-mode');
                         
+                    console.log('desktop.html: 移除组件的编辑模式属性');
+                    
+                    // 移除组件的可拖动属性
+                    const widgets = document.querySelectorAll('.widget');
+                    widgets.forEach(widget => {
+                        widget.removeAttribute('draggable');
+                        widget.classList.remove('widget-edit-mode');
+                            
                         // 移除拖动指示器
                         const indicator = widget.querySelector('.drag-indicator');
                         if (indicator) {
                             widget.removeChild(indicator);
                         }
+                        
+                        // 移除PC拖拽事件监听器
+                        widget.removeEventListener('dragstart', handleDragStart);
+                        widget.removeEventListener('dragend', handleDragEnd);
+                    });
                     
-                    // 移除PC拖拽事件监听器
-                    widget.removeEventListener('dragstart', handleDragStart);
-                    widget.removeEventListener('dragend', handleDragEnd);
-                });
-                
-                // 移除文档级别的触摸移动和结束监听
-                document.removeEventListener('touchmove', handleTouchMove);
-                document.removeEventListener('touchend', handleTouchEnd);
-                
-                // 移除网格的拖放区域事件
-                desktopGrid.removeEventListener('dragover', handleDragOver);
-                desktopGrid.removeEventListener('drop', handleDrop);
-                
+                    // 移除文档级别的触摸移动和结束监听
+                    document.removeEventListener('touchmove', moveWidgetTouchHandler);
+                    document.removeEventListener('touchend', endWidgetTouchHandler);
+                    
+                    // 移除网格的拖放区域事件
+                    desktopGrid.removeEventListener('dragover', handleDragOver);
+                    desktopGrid.removeEventListener('drop', handleDrop);
+                    
                     // 重置拖动状态
                     isDragging = false;
                     currentDragWidget = null;
                     window.isDragging = false;
-                
-                // 保存最终布局
-                widgetManager.saveLayout();
                     
+                    // 保存最终布局
+                    saveCurrentLayout();
+                        
                     console.log('desktop.html: 退出编辑模式完成');
                     return true;
                 } catch (error) {
@@ -795,8 +729,13 @@
             
             // 保存当前布局以便在取消时恢复
             function saveCurrentLayout() {
-                // 可以实现布局的临时保存和恢复
                 console.log('保存当前布局');
+                // 调用组件管理器的saveCurrentLayout，而不是不存在的saveLayout
+                if (widgetManager.saveCurrentLayout) {
+                    widgetManager.saveCurrentLayout();
+                } else {
+                    console.error('saveCurrentLayout方法不存在');
+                }
             }
             
             // 添加与父页面通信的函数，用于右滑打开菜单
@@ -851,39 +790,135 @@
                 document.addEventListener('touchend', handleTouchEnd, { passive: true });
             }
             
-            // 触摸拖拽处理 - 移动
-            function handleTouchMove(e) {
-                // 如果没有正在拖拽的组件，直接返回
-                if (!isDragging || !currentDragWidget) {
+            // ====================== 新的触摸事件处理逻辑 ======================
+            
+            // 统一的触摸处理函数
+            function startWidgetTouchHandler(e) {
+                // 只在编辑模式下启用长按
+                if (!editMode) return;
+                
+                console.log('[触摸开始] 编辑模式中，开始检测长按');
+                
+                // 阻止默认行为，防止文本选择和上下文菜单
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
+                
+                const widget = this;
+                
+                // 添加长按视觉反馈
+                widget.classList.add('widget-touch-feedback');
+                
+                // 记录起始触摸位置，用于判断是否有明显移动
+                widget.touchStartX = e.touches[0].clientX;
+                widget.touchStartY = e.touches[0].clientY;
+                
+                // 创建长按计时器
+                widget.longPressTimer = setTimeout(function() {
+                    // 长按超过指定时间，触发拖动
+                    console.log('[长按触发] 开始拖动组件');
+                    
+                    // 移除长按反馈，添加拖动状态
+                    widget.classList.remove('widget-touch-feedback');
+                    
+                    // 添加震动反馈（如果设备支持）
+                    if (window.navigator && window.navigator.vibrate) {
+                        window.navigator.vibrate(100);
+                    }
+                    
+                    // 设置为正在拖动状态
+                    isDragging = true;
+                    window.isDragging = true;
+                    currentDragWidget = widget;
+                    
+                    // 记录拖动开始时的位置
+                    const rect = widget.getBoundingClientRect();
+                    const touch = e.touches[0];
+                    dragOffsetX = touch.clientX - rect.left;
+                    dragOffsetY = touch.clientY - rect.top;
+                    
+                    console.log(`[拖动信息] 位置=${touch.clientX},${touch.clientY}, 偏移=${dragOffsetX},${dragOffsetY}`);
+                    
+                    // 保存原始位置数据
+                    widget.originalLeft = widget.style.left;
+                    widget.originalTop = widget.style.top;
+                    widget.originalCol = widget.dataset.col;
+                    widget.originalRow = widget.dataset.row;
+                    
+                    // 添加拖动样式
+                    widget.classList.add('dragging');
+                    
+                    // 重置初始拖动标记
+                    widget.initialDragHandled = false;
+                    
+                    // 手动触发一次拖动，确保立即有反馈
+                    const fakeEvent = {
+                        touches: e.touches,
+                        preventDefault: function() {},
+                        stopPropagation: function() {}
+                    };
+                    updateDraggedWidgetPosition(fakeEvent);
+                    
+                }, 300); // 300ms为长按判定时间
+            }
+            
+            function moveWidgetTouchHandler(e) {
+                const widget = this;
+                
+                // 如果正在拖动就处理拖动逻辑
+                if (isDragging && currentDragWidget === widget) {
+                    // 阻止默认滚动行为
+                    if (e.cancelable) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    
+                    // 更新拖动位置
+                    updateDraggedWidgetPosition(e);
                     return;
                 }
                 
-                if (e.cancelable) {
-                    e.preventDefault(); // 阻止滚动
+                // 如果不是在拖动状态，检查是否需要取消长按
+                if (widget.longPressTimer) {
+                    // 计算移动距离
+                    const moveX = Math.abs(e.touches[0].clientX - widget.touchStartX);
+                    const moveY = Math.abs(e.touches[0].clientY - widget.touchStartY);
+                    
+                    // 如果移动超过阈值，取消长按
+                    if (moveX > 5 || moveY > 5) {
+                        console.log(`[取消长按] 移动距离(${moveX}, ${moveY})超过阈值`);
+                        clearTimeout(widget.longPressTimer);
+                        widget.classList.remove('widget-touch-feedback');
+                    }
+                }
+            }
+            
+            function endWidgetTouchHandler(e) {
+                const widget = this;
+                
+                // 清除长按计时器
+                if (widget.longPressTimer) {
+                    clearTimeout(widget.longPressTimer);
+                    widget.classList.remove('widget-touch-feedback');
                 }
                 
-                // 获取当前触摸位置 - iframe内部坐标
+                // 如果正在拖动当前组件就结束拖动
+                if (isDragging && currentDragWidget === widget) {
+                    console.log('[拖动结束] 处理最终位置');
+                    finishDragging(e);
+                }
+            }
+            
+            // 全局拖动处理函数 - 更新拖动组件位置
+            function updateDraggedWidgetPosition(e) {
+                if (!isDragging || !currentDragWidget) return;
+                
+                console.log("[拖动更新] 计算新位置");
+                
+                // 获取当前触摸位置
                 const touch = e.touches[0];
                 const clientX = touch.clientX;
                 const clientY = touch.clientY;
-                
-                // 转换为父窗口坐标系
-                let parentX = clientX;
-                let parentY = clientY;
-                
-                // 如果在iframe内，需要加上iframe的偏移量
-                if (window.frameElement) {
-                    const frameRect = window.frameElement.getBoundingClientRect();
-                    parentX += frameRect.left;
-                    parentY += frameRect.top;
-                    console.log(`转换坐标：iframe内(${clientX}, ${clientY}) -> 父窗口(${parentX}, ${parentY})`);
-                }
-                
-                // 通知父窗口组件位置，用于检测是否悬停在删除区域上
-                if (window.parent && window.parent.checkDeleteWidget) {
-                    // 只检查，不删除 - 使用父窗口坐标系
-                    window.parent.checkDeleteWidget(parentX, parentY, currentDragWidget.id);
-                }
                 
                 // 计算相对于桌面的位置
                 const gridRect = desktopGrid.getBoundingClientRect();
@@ -898,105 +933,237 @@
                 const cellWidth = desktopGrid.clientWidth / 12;
                 const cellHeight = desktopGrid.clientHeight / 6;
                 
-                // 计算网格位置
-                const col = Math.floor(adjX / cellWidth);
-                const row = Math.floor(adjY / cellHeight);
-                
                 // 获取组件尺寸
-                const width = parseInt(currentDragWidget.dataset.width);
-                const height = parseInt(currentDragWidget.dataset.height);
+                const width = parseInt(currentDragWidget.dataset.width || 1);
+                const height = parseInt(currentDragWidget.dataset.height || 1);
                 
-                // 确保不超出边界
-                const finalCol = Math.max(0, Math.min(col, 12 - width));
-                const finalRow = Math.max(0, Math.min(row, 6 - height));
+                if (!currentDragWidget.initialDragHandled) {
+                    // 第一次移动时，保持原位置，只设置拖动状态
+                    currentDragWidget.initialDragHandled = true;
+                    
+                    // 获取当前实际位置而不是使用网格位置
+                    const rect = currentDragWidget.getBoundingClientRect();
+                    currentDragWidget.startLeft = rect.left - gridRect.left;
+                    currentDragWidget.startTop = rect.top - gridRect.top;
+                    
+                    // 记录起始触摸位置
+                    currentDragWidget.startTouchX = clientX;
+                    currentDragWidget.startTouchY = clientY;
+                    
+                    console.log(`[拖动初始化] 组件起始位置: X=${currentDragWidget.startLeft}, Y=${currentDragWidget.startTop}`);
+                    console.log(`[拖动初始化] 触摸起始位置: X=${currentDragWidget.startTouchX}, Y=${currentDragWidget.startTouchY}`);
+                    
+                    // 保持当前位置，但添加拖动视觉效果
+                    currentDragWidget.style.zIndex = '1000';
+                } else {
+                    // 后续移动使用相对位移计算逻辑位置
+                    const deltaX = clientX - currentDragWidget.startTouchX;
+                    const deltaY = clientY - currentDragWidget.startTouchY;
+                    
+                    const logicalLeft = currentDragWidget.startLeft + deltaX;
+                    const logicalTop = currentDragWidget.startTop + deltaY;
+                    
+                    // 计算对应的网格位置
+                    const gridCol = Math.floor(logicalLeft / cellWidth);
+                    const gridRow = Math.floor(logicalTop / cellHeight);
+                    
+                    // 确保不超出边界
+                    const finalGridCol = Math.max(0, Math.min(gridCol, 12 - width));
+                    const finalGridRow = Math.max(0, Math.min(gridRow, 6 - height));
+                    
+                    // 使用网格对齐后的位置（吸附到网格）
+                    const snapLeft = finalGridCol * cellWidth;
+                    const snapTop = finalGridRow * cellHeight;
+                    
+                    // 应用吸附到网格的位置
+                    currentDragWidget.style.left = `${snapLeft}px`;
+                    currentDragWidget.style.top = `${snapTop}px`;
+                    
+                    // 记录目标位置
+                    currentDragWidget.dataset.targetCol = finalGridCol;
+                    currentDragWidget.dataset.targetRow = finalGridRow;
+                    
+                    console.log(`[拖动吸附] 网格位置: 列=${finalGridCol}, 行=${finalGridRow}, X=${snapLeft}, Y=${snapTop}`);
+                }
                 
-                // 更新位置
+                // 强制页面立即更新视图
+                window.requestAnimationFrame(function() {
+                    // 添加视觉反馈
+                    currentDragWidget.style.boxShadow = '0 8px 15px rgba(0, 0, 0, 0.2)';
+                });
+            }
+            
+            // 完成拖动，应用最终位置
+            function finishDragging(e) {
+                if (!isDragging || !currentDragWidget) return;
+                
+                console.log("[拖动结束] 应用最终位置");
+                
+                // 获取最终位置
+                const finalCol = parseInt(currentDragWidget.dataset.targetCol || currentDragWidget.dataset.col);
+                const finalRow = parseInt(currentDragWidget.dataset.targetRow || currentDragWidget.dataset.row);
+                
+                // 计算单元格尺寸
+                const cellWidth = desktopGrid.clientWidth / 12;
+                const cellHeight = desktopGrid.clientHeight / 6;
+                
+                // 应用最终位置（对齐到网格）
                 currentDragWidget.style.left = `${finalCol * cellWidth}px`;
                 currentDragWidget.style.top = `${finalRow * cellHeight}px`;
+                currentDragWidget.style.transform = '';
                 
                 // 更新数据属性
                 currentDragWidget.dataset.col = finalCol;
                 currentDragWidget.dataset.row = finalRow;
-            }
-            
-            // 触摸拖拽处理 - 结束
-            function handleTouchEnd(e) {
-                // 如果没有正在拖拽的组件，直接返回
-                if (!isDragging || !currentDragWidget) {
-                    return;
+                
+                // 更新组件配置
+                const widgetObj = widgetManager.widgets.find(w => w.getId() === currentDragWidget.id);
+                if (widgetObj && widgetObj.config) {
+                    widgetObj.config.col = finalCol;
+                    widgetObj.config.row = finalRow;
                 }
                 
-                // 阻止默认行为
-                if (e.cancelable) {
-                    e.preventDefault();
-                }
-
-                // 获取当前触摸位置 - iframe内部坐标
-                const touch = e.changedTouches[0];
-                const clientX = touch.clientX;
-                const clientY = touch.clientY;
-                
-                // 转换为父窗口坐标系
-                let parentX = clientX;
-                let parentY = clientY;
-                
-                // 如果在iframe内，需要加上iframe的偏移量
-                if (window.frameElement) {
-                    const frameRect = window.frameElement.getBoundingClientRect();
-                    parentX += frameRect.left;
-                    parentY += frameRect.top;
-                    console.log(`转换坐标：iframe内(${clientX}, ${clientY}) -> 父窗口(${parentX}, ${parentY})`);
-                }
-
-                console.log('触摸结束，检查删除', parentX, parentY, currentDragWidget.id);
-                
-                // 使用新的触摸拖动处理函数来处理删除
-                let shouldDelete = false;
-                if (window.parent && window.parent.handleTouchDrop) {
-                    // 使用父窗口新提供的handleTouchDrop函数
-                    shouldDelete = window.parent.handleTouchDrop(parentX, parentY, currentDragWidget.id);
-                    console.log('父窗口返回删除结果(handleTouchDrop):', shouldDelete);
-                } else if (window.parent && window.parent.checkDeleteWidget) {
-                    // 兼容旧方法
-                    shouldDelete = window.parent.checkDeleteWidget(parentX, parentY, currentDragWidget.id);
-                    console.log('父窗口返回删除结果(checkDeleteWidget):', shouldDelete);
-                }
-                
-                if (shouldDelete) {
-                    console.log('删除组件:', currentDragWidget.id);
-                    // 从DOM中移除组件
-                    currentDragWidget.remove();
-                    
-                    // 从管理器中移除组件
-                    widgetManager.removeWidget(currentDragWidget.id);
-                    
-                    // 保存布局
-                    widgetManager.saveLayout();
-                } else {
-                    // 正常放置，更新组件配置
-                    const widgetId = currentDragWidget.id;
-                    const finalCol = parseInt(currentDragWidget.dataset.col);
-                    const finalRow = parseInt(currentDragWidget.dataset.row);
-                    
-                    // 更新组件配置
-                    const widgetObj = widgetManager.widgets.find(w => w.getId() === widgetId);
-                    if (widgetObj && widgetObj.config) {
-                        widgetObj.config.col = finalCol;
-                        widgetObj.config.row = finalRow;
-                    }
-                }
-                
-                // 保存布局
-                widgetManager.saveLayout();
-                
-                // 移除拖拽相关样式和状态
+                // 清除样式和临时状态
                 currentDragWidget.classList.remove('dragging');
+                currentDragWidget.style.boxShadow = '';
+                currentDragWidget.style.zIndex = '';
+                currentDragWidget.initialDragHandled = false; // 重置初始拖动标记
+                
+                // 重置状态
                 isDragging = false;
-                window.isDragging = false; // 更新暴露给父窗口的状态
+                window.isDragging = false;
                 currentDragWidget = null;
                 
-                console.log('拖拽状态已重置');
+                // 保存布局
+                saveCurrentLayout();
+                
+                console.log('[拖动完成] 重置状态');
             }
+            
+            // 检查是否处于编辑模式 - 提供给父窗口使用
+            function isEditMode() {
+                return editMode;
+            }
+            
+            // 接收并处理来自父页面的添加组件请求
+            function addWidgetFromParent(widgetId) {
+                console.log(`从父页面请求添加组件: ${widgetId}`);
+                
+                // 如果不在编辑模式，先切换到编辑模式
+                if (!editMode) {
+                    enterEditMode();
+                }
+                
+                // 在视口中央添加组件
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                addWidgetAtPosition(widgetId, centerX, centerY);
+                
+                return true;
+            }
+            
+            // 将函数暴露到全局作用域，使父页面可以访问
+            window.isEditMode = isEditMode;
+            window.exitEditMode = exitEditMode;
+            window.enterEditMode = enterEditMode;
+            window.addWidgetFromParent = addWidgetFromParent;
+            
+            // 检测是否运行在安卓设备上
+            function isAndroid() {
+                return /Android/i.test(navigator.userAgent);
+            }
+            
+            // 安卓设备专用的触摸移动处理函数
+            function handleAndroidTouchMove(e) {
+                // 只调用通用处理方法
+                handleTouchMove(e);
+            }
+            
+            // 安卓设备特定的触摸结束处理
+            function handleAndroidTouchEnd(e) {
+                // 调用通用的触摸结束处理
+                handleTouchEnd(e);
+            }
+            
+            // 暴露给父窗口的函数
+            window.exitEditMode = exitEditMode;
+            window.enterEditMode = enterEditMode;
+            window.addWidgetFromParent = addWidgetFromParent;
+            window.isEditMode = function() { return editMode; };
+            window.onDeleteZoneDragOver = onDeleteZoneDragOver;
+            window.onDeleteZoneDrop = onDeleteZoneDrop;
+            window.deleteWidget = deleteWidget;
+
+            // 禁用文本选择，解决安卓上拖动冲突问题
+            function disableTextSelection() {
+                // 添加全局样式规则以禁用文本选择
+                const style = document.createElement('style');
+                style.textContent = `
+                    .disable-selection {
+                        -webkit-user-select: none;
+                        -moz-user-select: none;
+                        -ms-user-select: none;
+                        user-select: none;
+                        -webkit-touch-callout: none;
+                    }
+                    
+                    .disable-touch-action {
+                        touch-action: none;
+                    }
+                    
+                    .widget {
+                        touch-action: none !important;
+                        -webkit-user-select: none !important;
+                        user-select: none !important;
+                    }
+                    
+                    .dragging {
+                        opacity: 0.8;
+                        z-index: 1000;
+                        transition: transform 0.05s ease-out;
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // 为所有widget元素添加禁用选择类
+                document.querySelectorAll('.widget').forEach(widget => {
+                    widget.classList.add('disable-selection');
+                    widget.classList.add('disable-touch-action');
+                });
+                
+                // 添加临时禁用文本选择的事件监听器
+                document.addEventListener('touchstart', function(e) {
+                    if (editMode && e.target.closest('.widget')) {
+                        if (e.cancelable) {
+                            e.preventDefault();
+                        }
+                    }
+                }, { passive: false });
+                
+                // 添加全局触摸移动处理器，防止拖动时页面滚动
+                document.addEventListener('touchmove', function(e) {
+                    if (isDragging && currentDragWidget) {
+                        if (e.cancelable) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }
+                }, { passive: false });
+            }
+
+            // 文档加载完成后初始化
+            document.addEventListener('DOMContentLoaded', function() {
+                // 初始化桌面
+                initDesktop();
+                
+                // 初始化右滑手势
+                initSwipeGesture();
+                
+                // 禁用文本选择
+                disableTextSelection();
+            });
+
+            // ====================== 添加组件相关函数 ======================
             
             // 添加响应父窗口触摸区域事件的函数
             function onDeleteZoneDragOver() {
@@ -1024,7 +1191,7 @@
                     widgetManager.removeWidget(widgetId);
                     
                     // 保存布局
-                    widgetManager.saveLayout();
+                    saveCurrentLayout();
                     
                     // 重置状态
                     currentDragWidget = null;
@@ -1046,7 +1213,7 @@
                     widgetManager.removeWidget(widgetId);
                     
                     // 保存布局
-                    widgetManager.saveLayout();
+                    saveCurrentLayout();
                     
                     return true;
                 }
@@ -1155,7 +1322,7 @@
                 
                 // 创建一个简单的组件对象用于保存
                 const widget = {
-                    getId: () => widgetId,
+                    getId: () => element.id,
                     config: config,
                     element: element
                 };
@@ -1164,7 +1331,7 @@
                 widgetManager.widgets.push(widget);
                 
                 // 保存布局
-                widgetManager.saveLayout();
+                saveCurrentLayout();
                 
                 // 在编辑模式下添加拖拽功能
                 if (editMode) {
@@ -1173,94 +1340,14 @@
                     element.addEventListener('dragstart', handleDragStart);
                     element.addEventListener('dragend', handleDragEnd);
                     
-                    // 对新添加的组件也使用长按触发拖动
-                    element.addEventListener('touchstart', function(e) {
-                        // 只在编辑模式下启用长按
-                        if (!editMode) return;
-                        
-                        const elementThis = this;
-                        // 创建长按计时器
-                        const longPressTimer = setTimeout(function() {
-                            // 长按超过指定时间，触发拖动
-                            handleDragStart.call(elementThis, e);
-                        }, 300); // 300ms为长按判定时间
-                        
-                        // 存储长按计时器，以便在touchend时清除
-                        this.longPressTimer = longPressTimer;
-                        
-                        // 记录起始触摸位置，用于判断是否有明显移动
-                        this.touchStartX = e.touches[0].clientX;
-                        this.touchStartY = e.touches[0].clientY;
-                    });
-                    
-                    // 添加触摸移动监听，如果在长按前有明显移动，取消长按计时器
-                    element.addEventListener('touchmove', function(e) {
-                        // 如果已经处于拖动状态，不做处理
-                        if (isDragging && currentDragWidget) return;
-                        
-                        // 计算移动距离
-                        const moveX = Math.abs(e.touches[0].clientX - this.touchStartX);
-                        const moveY = Math.abs(e.touches[0].clientY - this.touchStartY);
-                        
-                        // 如果移动超过阈值，取消长按
-                        if (moveX > 10 || moveY > 10) {
-                            clearTimeout(this.longPressTimer);
-                        }
-                    });
-                    
-                    // 添加触摸结束监听，清除长按计时器
-                    element.addEventListener('touchend', function(e) {
-                        // 清除长按计时器
-                        if (this.longPressTimer) {
-                            clearTimeout(this.longPressTimer);
-                        }
-                    });
+                    // 对新添加的组件添加触摸处理
+                    element.addEventListener('touchstart', startWidgetTouchHandler, { passive: false });
+                    element.addEventListener('touchmove', moveWidgetTouchHandler, { passive: false });
+                    element.addEventListener('touchend', endWidgetTouchHandler, { passive: false });
                 }
                 
                 return widget;
             }
-            
-            // 检查是否处于编辑模式 - 提供给父窗口使用
-            function isEditMode() {
-                return editMode;
-            }
-            
-            // 接收并处理来自父页面的添加组件请求
-            function addWidgetFromParent(widgetId) {
-                console.log(`从父页面请求添加组件: ${widgetId}`);
-                
-                // 如果不在编辑模式，先切换到编辑模式
-                if (!editMode) {
-                    enterEditMode();
-                }
-                
-                // 在视口中央添加组件
-                const centerX = window.innerWidth / 2;
-                const centerY = window.innerHeight / 2;
-                addWidgetAtPosition(widgetId, centerX, centerY);
-                
-                return true;
-            }
-            
-            // 将函数暴露到全局作用域，使父页面可以访问
-            window.isEditMode = isEditMode;
-            window.exitEditMode = exitEditMode;
-            window.enterEditMode = enterEditMode;
-            window.addWidgetFromParent = addWidgetFromParent;
-            
-            // 检测是否运行在安卓设备上
-            function isAndroid() {
-                return /Android/i.test(navigator.userAgent);
-            }
-            
-            // 暴露给父窗口的函数
-            window.exitEditMode = exitEditMode;
-            window.enterEditMode = enterEditMode;
-            window.addWidgetFromParent = addWidgetFromParent;
-            window.isEditMode = function() { return editMode; };
-            window.onDeleteZoneDragOver = onDeleteZoneDragOver;
-            window.onDeleteZoneDrop = onDeleteZoneDrop;
-            window.deleteWidget = deleteWidget;
         });
     </script>
 </body>

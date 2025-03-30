@@ -16,29 +16,80 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f5f5f5;
+            background-color: rgba(0, 0, 0, 0.5);
         }
         
         .pairing-container {
             text-align: center;
             width: 80%;
             max-width: 500px;
-            padding: 30px;
+            padding: 20px;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .pairing-title {
-            font-size: 24px;
+            font-size: 22px;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .pairing-text {
+        .loading-dots {
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+        
+        .device-list {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .device-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: left;
+        }
+        
+        .device-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #e3f2fd;
+            color: #2196F3;
+            font-size: 20px;
+        }
+        
+        .device-name {
             font-size: 16px;
-            color: #666;
-            margin-bottom: 30px;
+            color: #333;
+            flex-grow: 1;
         }
         
         .back-button {
@@ -49,35 +100,40 @@
             border-radius: 5px;
             font-size: 14px;
             cursor: pointer;
-            margin-right: 10px;
+            margin-top: 20px;
         }
         
         .back-button:hover {
             background-color: #616161;
         }
         
-        .pair-success-button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        
-        .pair-success-button:hover {
-            background-color: #45a049;
+        .helicopter-icon {
+            width: 40px;
+            height: 40px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%232196F3"><path d="M12 2C9.97 2 8.1 2.67 6.6 3.8L12 9.19L17.4 3.8C15.9 2.67 14.03 2 12 2M3 9V15H5V9H3M19 9V15H21V9H19M5.36 17L3 19.03V21H21V19.03L18.64 17H5.36Z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 28px;
         }
     </style>
 </head>
 <body>
     <div class="pairing-container">
-        <div class="pairing-title">设备对频</div>
-        <div class="pairing-text">这是一个空白的对频界面，实际功能待实现。</div>
+        <div class="pairing-title">搜索设备中<span class="loading-dots"></span></div>
+        
+        <div class="device-list">
+            <div class="device-item" onclick="connectToDevice('goosky-rs7')">
+                <div class="device-icon helicopter-icon"></div>
+                <div class="device-name">GOOSKY RS7</div>
+            </div>
+            
+            <div class="device-item" onclick="setupNewModel()">
+                <div class="device-icon">+</div>
+                <div class="device-name">设置新模型</div>
+            </div>
+        </div>
+        
         <button class="back-button" onclick="goBack()">返回</button>
-        <button class="pair-success-button" onclick="pairingSuccess()">模拟对频成功</button>
     </div>
     
     <script>
@@ -85,12 +141,18 @@
             window.location.href = "unpaired.html";
         }
         
-        function pairingSuccess() {
-            // 模拟对频成功，跳转到已对频主界面
-            window.location.href = "desktop.html";
-            
-            // 实际应用中会通知父窗口更新连接状态
-            // 这里是在iframe内，无法直接操作父窗口状态
+        function connectToDevice(deviceId) {
+            console.log("连接设备: " + deviceId);
+            // 模拟连接过程
+            setTimeout(function() {
+                // 连接成功后跳转到已连接主界面
+                window.location.href = "desktop.html";
+            }, 500);
+        }
+        
+        function setupNewModel() {
+            console.log("设置新模型");
+            window.location.href = "setup-new-model.html";
         }
     </script>
 </body>

@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
@@ -54,9 +55,29 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置WebChromeClient处理JavaScript对话框、标题等
         webView.setWebChromeClient(new WebChromeClient());
+        
+        // 禁用WebView的返回手势
+        webView.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                // 拦截返回键事件
+                return true;
+            }
+            return false;
+        });
 
         // 默认加载本地HTML
         webView.loadUrl("file:///android_asset/html/index.html");
+        
+        // 禁用系统手势导航
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWindow().getDecorView().findViewById(android.R.id.content).setOnTouchListener((v, event) -> {
+                // 检测边缘滑动手势并拦截
+                if (event.getX() < 20 || event.getX() > getWindow().getDecorView().getWidth() - 20) {
+                    return true; // 拦截边缘滑动
+                }
+                return false;
+            });
+        }
     }
     
     private void setupFullScreen() {
@@ -66,6 +87,17 @@ public class MainActivity extends AppCompatActivity {
             WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
             controller.hide(WindowInsetsCompat.Type.systemBars());
             controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            
+            // 禁用手势导航
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10及以上
+                controller.setSystemBarsBehavior(
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                );
+                getWindow().getDecorView().setOnApplyWindowInsetsListener((v, insets) -> {
+                    return insets;
+                });
+            }
         } catch (Exception e) {
             // 如果新API失败，回退到旧方法
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -98,11 +130,27 @@ public class MainActivity extends AppCompatActivity {
     // 处理返回键
     @Override
     public void onBackPressed() {
+        // 屏蔽系统返回手势，完全禁用返回功能
+        // 如需在特定页面允许返回，可通过WebView的URL判断
+        
+        // 原代码（如果想保留WebView内部返回功能，取消下方注释）
+        /*
         if (webView.canGoBack()) {
             webView.goBack();
         } else {
             super.onBackPressed();
         }
+        */
+    }
+    
+    // 拦截系统返回键
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            // 返回true表示事件已被处理，阻止默认行为
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     // 释放WebView资源
