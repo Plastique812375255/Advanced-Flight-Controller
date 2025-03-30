@@ -1,0 +1,19 @@
+{
+  "name": "afcui",
+  "version": "1.0.0",
+  "description": "AFC UI Preview Server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "webview",
+    "android",
+    "preview"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+  }
+} 

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未对频状态</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        
+        .unpaired-container {
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .unpaired-text {
+            font-size: 28px;
+            color: #666;
+            font-weight: bold;
+        }
+        
+        .pair-button {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            padding: 12px 25px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .pair-button:hover {
+            background-color: #1976D2;
+            box-shadow: 0 5px 8px rgba(0,0,0,0.3);
+        }
+        
+        .pair-button:active {
+            background-color: #0D47A1;
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="unpaired-container">
+        <div class="unpaired-text">未连接</div>
+        <button class="pair-button" onclick="showPairingModal()">对频</button>
+    </div>
+    
+    <script>
+        function showPairingModal() {
+            // 直接模拟对频流程 - 在实际应用中会弹出对频界面
+            window.location.href = "pairing.html";
+            
+            // 注意：实际对频成功会由pairing.html页面完成跳转
+            // 跳转到desktop.html (已对频主界面)
+        }
+    </script>
+</body>
+</html> 

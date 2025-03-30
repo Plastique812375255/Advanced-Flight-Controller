@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备对频</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        
+        .pairing-container {
+            text-align: center;
+            width: 80%;
+            max-width: 500px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .pairing-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .pairing-text {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .back-button {
+            padding: 10px 20px;
+            background-color: #757575;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .back-button:hover {
+            background-color: #616161;
+        }
+        
+        .pair-success-button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .pair-success-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="pairing-container">
+        <div class="pairing-title">设备对频</div>
+        <div class="pairing-text">这是一个空白的对频界面，实际功能待实现。</div>
+        <button class="back-button" onclick="goBack()">返回</button>
+        <button class="pair-success-button" onclick="pairingSuccess()">模拟对频成功</button>
+    </div>
+    
+    <script>
+        function goBack() {
+            window.location.href = "unpaired.html";
+        }
+        
+        function pairingSuccess() {
+            // 模拟对频成功，跳转到已对频主界面
+            window.location.href = "desktop.html";
+            
+            // 实际应用中会通知父窗口更新连接状态
+            // 这里是在iframe内，无法直接操作父窗口状态
+        }
+    </script>
+</body>
+</html> 
