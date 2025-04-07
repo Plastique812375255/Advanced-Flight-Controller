@@ -1,7 +1,7 @@
 /**
- * 机型1特定组件
+ * 塞斯纳机型专用组件
  */
-class model1SpecificWidget {
+class cessnaSpecificWidget {
     constructor(config) {
         this.config = config || {};
         this.element = null;
@@ -12,10 +12,10 @@ class model1SpecificWidget {
      */
     static getMetadata() {
         return {
-            id: "model1-specific",
-            name: "机型1专用组件",
-            description: "仅适用于机型1的特定功能组件",
-            author: "机型1开发团队"
+            id: "10001-specific",
+            name: "塞斯纳专用组件",
+            description: "仅适用于塞斯纳机型的特定功能组件",
+            author: "塞斯纳开发团队"
         };
     }
     
@@ -25,23 +25,23 @@ class model1SpecificWidget {
     createDOMElement() {
         // 创建组件容器
         this.element = document.createElement('div');
-        this.element.className = 'widget model1-widget';
-        this.element.id = `widget-${this.config.widgetId || 'model1-specific'}-${Date.now()}`;
+        this.element.className = 'widget cessna-widget';
+        this.element.id = `widget-${this.config.widgetId || '10001-specific'}-${Date.now()}`;
         
         // 创建组件内容
         const content = document.createElement('div');
-        content.className = 'model1-content';
+        content.className = 'cessna-content';
         
         // 创建标题
         const title = document.createElement('div');
-        title.className = 'model1-title';
-        title.textContent = '机型1专用功能';
+        title.className = 'cessna-title';
+        title.textContent = '塞斯纳专用功能';
         
         // 创建功能区
         const features = document.createElement('div');
-        features.className = 'model1-features';
+        features.className = 'cessna-features';
         
-        // 添加几个机型1特定的功能按钮
+        // 添加几个塞斯纳特定的功能按钮
         const functions = [
             { name: '特殊功能1', icon: '⚙️' },
             { name: '特殊功能2', icon: '🔧' },
@@ -50,7 +50,7 @@ class model1SpecificWidget {
         
         functions.forEach(func => {
             const button = document.createElement('button');
-            button.className = 'model1-feature-button';
+            button.className = 'cessna-feature-button';
             button.innerHTML = `${func.icon} ${func.name}`;
             button.onclick = () => this.activateFeature(func.name);
             features.appendChild(button);
@@ -71,8 +71,8 @@ class model1SpecificWidget {
      * 激活特定功能
      */
     activateFeature(featureName) {
-        alert(`正在激活机型1的特定功能: ${featureName}`);
-        // 这里可以添加机型1特有的功能逻辑
+        alert(`正在激活塞斯纳的特定功能: ${featureName}`);
+        // 这里可以添加塞斯纳特有的功能逻辑
     }
     
     /**
@@ -80,15 +80,15 @@ class model1SpecificWidget {
      */
     addStyles() {
         // 检查是否已添加样式
-        if (document.getElementById('model1-widget-style')) {
+        if (document.getElementById('cessna-widget-style')) {
             return;
         }
         
         // 创建样式元素
         const style = document.createElement('style');
-        style.id = 'model1-widget-style';
+        style.id = 'cessna-widget-style';
         style.textContent = `
-            .model1-widget {
+            .cessna-widget {
                 background-color: #e6f7ff;
                 border-radius: 10px;
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -101,14 +101,14 @@ class model1SpecificWidget {
                 border: 2px solid #1890ff;
             }
             
-            .model1-content {
+            .cessna-content {
                 display: flex;
                 flex-direction: column;
                 width: 100%;
                 height: 100%;
             }
             
-            .model1-title {
+            .cessna-title {
                 font-size: 16px;
                 font-weight: bold;
                 margin-bottom: 10px;
@@ -118,13 +118,13 @@ class model1SpecificWidget {
                 border-bottom: 1px solid #91d5ff;
             }
             
-            .model1-features {
+            .cessna-features {
                 display: flex;
                 flex-direction: column;
                 gap: 8px;
             }
             
-            .model1-feature-button {
+            .cessna-feature-button {
                 background-color: #1890ff;
                 color: white;
                 border: none;
@@ -138,7 +138,7 @@ class model1SpecificWidget {
                 font-size: 14px;
             }
             
-            .model1-feature-button:hover {
+            .cessna-feature-button:hover {
                 background-color: #40a9ff;
             }
         `;

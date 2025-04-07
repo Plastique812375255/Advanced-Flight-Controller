@@ -1,0 +1,14 @@
+[
+  {
+    "id": "10002-dashboard",
+    "name": "飞翼仪表盘",
+    "description": "飞翼机型专用综合仪表盘",
+    "file": "10002-dashboard/index.js"
+  },
+  {
+    "id": "10002-control",
+    "name": "飞翼控制面板",
+    "description": "飞翼机型专用控制面板小组件",
+    "file": "10002-control/index.js"
+  }
+] 

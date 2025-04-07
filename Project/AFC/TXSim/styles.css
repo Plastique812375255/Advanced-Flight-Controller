@@ -1,0 +1,225 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+    max-width: 1600px;
+    margin: 0 auto;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    margin: 20px 0;
+    color: #333;
+    text-align: center;
+}
+
+h3 {
+    margin: 15px 0;
+    color: #555;
+}
+
+/* 左面板样式 */
+.left-panel {
+    flex: 1;
+    padding: 20px;
+    border-right: 2px solid #eee;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.section {
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* 摇杆样式 */
+.joysticks {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.joystick-container {
+    text-align: center;
+    margin: 10px;
+}
+
+.joystick-frame {
+    width: 150px;
+    height: 150px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    position: relative;
+    background-color: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.joystick-knob {
+    width: 40px;
+    height: 40px;
+    background-color: #333;
+    border-radius: 50%;
+    position: absolute;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.joystick-label {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+/* 滑块样式 */
+.sliders-container {
+    padding: 10px;
+}
+
+.slider-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.slider-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+.slider-item label {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #666;
+}
+
+.slider {
+    width: 100%;
+    margin: 5px 0;
+}
+
+.slider-value {
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+}
+
+/* 开关样式 */
+.switches-container {
+    padding: 10px;
+}
+
+.switch-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.switch-item {
+    margin-bottom: 15px;
+}
+
+.switch-item label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #666;
+}
+
+.switch3 {
+    display: flex;
+    justify-content: space-between;
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.switch-btn {
+    flex: 1;
+    border: none;
+    padding: 8px 0;
+    cursor: pointer;
+    background-color: #ddd;
+    transition: background-color 0.2s;
+}
+
+.switch-btn:hover {
+    background-color: #ccc;
+}
+
+.switch-btn.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.switch-value {
+    display: block;
+    text-align: center;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* 右面板样式 */
+.right-panel {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.data-display {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.data-section {
+    margin-bottom: 25px;
+}
+
+.data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.data-item {
+    padding: 8px;
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+}
+
+/* 响应式样式 */
+@media (max-width: 1100px) {
+    .container {
+        flex-direction: column;
+    }
+    
+    .left-panel {
+        border-right: none;
+        border-bottom: 2px solid #eee;
+    }
+} 

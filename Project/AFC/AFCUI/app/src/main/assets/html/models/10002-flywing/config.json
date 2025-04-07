@@ -1,0 +1,43 @@
+{
+  "id": "10002",
+  "name": "飞翼",
+  "description": "无尾翼固定翼飞机，高速、低阻力设计",
+  "version": "1.0.0",
+  "category": 1,
+  "widgetGroups": [
+    {
+      "id": "system",
+      "name": "系统组件",
+      "widgets": ["system.model-name", "system.model-image"]
+    },
+    {
+      "id": "common",
+      "name": "通用组件",
+      "widgets": ["common.model-name", "common.model-image"]
+    },
+    {
+      "id": "10002-dashboard",
+      "name": "飞翼仪表盘",
+      "widgets": ["10002-dashboard"]
+    },
+    {
+      "id": "10002-control",
+      "name": "飞翼控制面板",
+      "widgets": ["10002-control"]
+    }
+  ],
+  "supportedWidgets": ["*"],
+  "screens": [
+    {"id": "loading", "name": "加载界面", "file": "screens/loading.html"}
+  ],
+  "defaults": {
+    "widgets": [
+      {"id": "medium", "source": "common", "position": {"x": 0, "y": 0}, "size": {"w": 2, "h": 1}},
+      {"id": "10002-dashboard", "source": "model", "position": {"x": 2, "y": 0}, "size": {"w": 2, "h": 1}},
+      {"id": "model-name", "source": "common", "position": {"x": 0, "y": 1}, "size": {"w": 1, "h": 1}},
+      {"id": "small", "source": "common", "position": {"x": 1, "y": 1}, "size": {"w": 1, "h": 1}},
+      {"id": "model-image", "source": "common", "position": {"x": 0, "y": 2}, "size": {"w": 2, "h": 2}},
+      {"id": "large", "source": "common", "position": {"x": 2, "y": 1}, "size": {"w": 2, "h": 2}}
+    ]
+  }
+} 

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型数据模拟器</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <h2>控制面板</h2>
+            
+            <!-- 摇杆区域 -->
+            <div class="section">
+                <h3>摇杆控制</h3>
+                <div class="joysticks">
+                    <div class="joystick-container">
+                        <div id="joystick1" class="joystick-frame">
+                            <div class="joystick-knob" id="joystick1-knob"></div>
+                        </div>
+                        <div class="joystick-label">摇杆1 (上下不回中)</div>
+                    </div>
+                    <div class="joystick-container">
+                        <div id="joystick2" class="joystick-frame">
+                            <div class="joystick-knob" id="joystick2-knob"></div>
+                        </div>
+                        <div class="joystick-label">摇杆2 (全回中)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 滑块区域 -->
+            <div class="section">
+                <h3>滑块控制</h3>
+                <div class="sliders-container">
+                    <!-- 16个滑块 -->
+                    <div class="slider-group">
+                        <div class="slider-item">
+                            <label>滑块 1</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider1">
+                            <span class="slider-value" id="slider1-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 2</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider2">
+                            <span class="slider-value" id="slider2-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 3</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider3">
+                            <span class="slider-value" id="slider3-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 4</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider4">
+                            <span class="slider-value" id="slider4-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 5</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider5">
+                            <span class="slider-value" id="slider5-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 6</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider6">
+                            <span class="slider-value" id="slider6-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 7</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider7">
+                            <span class="slider-value" id="slider7-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 8</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider8">
+                            <span class="slider-value" id="slider8-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 9</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider9">
+                            <span class="slider-value" id="slider9-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 10</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider10">
+                            <span class="slider-value" id="slider10-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 11</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider11">
+                            <span class="slider-value" id="slider11-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 12</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider12">
+                            <span class="slider-value" id="slider12-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 13</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider13">
+                            <span class="slider-value" id="slider13-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 14</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider14">
+                            <span class="slider-value" id="slider14-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 15</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider15">
+                            <span class="slider-value" id="slider15-value">0</span>
+                        </div>
+                        <div class="slider-item">
+                            <label>滑块 16</label>
+                            <input type="range" min="-128" max="128" value="0" class="slider" id="slider16">
+                            <span class="slider-value" id="slider16-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 三位置开关区域 -->
+            <div class="section">
+                <h3>三位置开关</h3>
+                <div class="switches-container">
+                    <!-- 12个三位置开关 -->
+                    <div class="switch-group">
+                        <div class="switch-item">
+                            <label>开关 1</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="1">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="1">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="1">1</button>
+                            </div>
+                            <span class="switch-value" id="switch1-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 2</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="2">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="2">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="2">1</button>
+                            </div>
+                            <span class="switch-value" id="switch2-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 3</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="3">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="3">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="3">1</button>
+                            </div>
+                            <span class="switch-value" id="switch3-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 4</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="4">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="4">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="4">1</button>
+                            </div>
+                            <span class="switch-value" id="switch4-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 5</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="5">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="5">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="5">1</button>
+                            </div>
+                            <span class="switch-value" id="switch5-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 6</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="6">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="6">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="6">1</button>
+                            </div>
+                            <span class="switch-value" id="switch6-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 7</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="7">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="7">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="7">1</button>
+                            </div>
+                            <span class="switch-value" id="switch7-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 8</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="8">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="8">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="8">1</button>
+                            </div>
+                            <span class="switch-value" id="switch8-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 9</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="9">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="9">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="9">1</button>
+                            </div>
+                            <span class="switch-value" id="switch9-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 10</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="10">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="10">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="10">1</button>
+                            </div>
+                            <span class="switch-value" id="switch10-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 11</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="11">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="11">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="11">1</button>
+                            </div>
+                            <span class="switch-value" id="switch11-value">0</span>
+                        </div>
+                        <div class="switch-item">
+                            <label>开关 12</label>
+                            <div class="switch3">
+                                <button class="switch-btn" data-value="-1" data-switch="12">-1</button>
+                                <button class="switch-btn active" data-value="0" data-switch="12">0</button>
+                                <button class="switch-btn" data-value="1" data-switch="12">1</button>
+                            </div>
+                            <span class="switch-value" id="switch12-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <h2>数据显示</h2>
+            <div class="data-display">
+                <div class="data-section">
+                    <h3>摇杆数据</h3>
+                    <div class="data-item">
+                        <span>摇杆1 X: </span><span id="joystick1-x-data">0</span>
+                    </div>
+                    <div class="data-item">
+                        <span>摇杆1 Y: </span><span id="joystick1-y-data">0</span>
+                    </div>
+                    <div class="data-item">
+                        <span>摇杆2 X: </span><span id="joystick2-x-data">0</span>
+                    </div>
+                    <div class="data-item">
+                        <span>摇杆2 Y: </span><span id="joystick2-y-data">0</span>
+                    </div>
+                </div>
+                
+                <div class="data-section">
+                    <h3>滑块数据</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span>滑块1: </span><span id="slider1-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块2: </span><span id="slider2-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块3: </span><span id="slider3-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块4: </span><span id="slider4-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块5: </span><span id="slider5-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块6: </span><span id="slider6-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块7: </span><span id="slider7-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块8: </span><span id="slider8-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块9: </span><span id="slider9-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块10: </span><span id="slider10-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块11: </span><span id="slider11-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块12: </span><span id="slider12-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块13: </span><span id="slider13-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块14: </span><span id="slider14-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块15: </span><span id="slider15-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>滑块16: </span><span id="slider16-data">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="data-section">
+                    <h3>开关数据</h3>
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span>开关1: </span><span id="switch1-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关2: </span><span id="switch2-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关3: </span><span id="switch3-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关4: </span><span id="switch4-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关5: </span><span id="switch5-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关6: </span><span id="switch6-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关7: </span><span id="switch7-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关8: </span><span id="switch8-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关9: </span><span id="switch9-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关10: </span><span id="switch10-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关11: </span><span id="switch11-data">0</span>
+                        </div>
+                        <div class="data-item">
+                            <span>开关12: </span><span id="switch12-data">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

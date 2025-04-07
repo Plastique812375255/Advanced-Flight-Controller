@@ -1,22 +1,24 @@
 [
   {
-    "id": "model1",
-    "name": "机型1",
-    "description": "第一种机型",
+    "id": "10001",
+    "name": "塞斯纳",
+    "description": "经典高翼单引擎固定翼飞机，稳定易操控",
     "version": "1.0.0",
     "isPreinstalled": true,
-    "path": "model1"
+    "path": "10001-cessna",
+    "category": 1
   },
   {
-    "id": "model2",
-    "name": "机型2",
-    "description": "第二种机型",
+    "id": "10002",
+    "name": "飞翼",
+    "description": "无尾翼固定翼飞机，高速、低阻力设计",
     "version": "1.0.0",
     "isPreinstalled": true,
-    "path": "model2"
+    "path": "10002-flywing",
+    "category": 1
   },
   {
-    "id": "model3",
+    "id": "10003",
     "name": "机型3",
     "description": "可下载的机型",
     "version": "1.0.0",
