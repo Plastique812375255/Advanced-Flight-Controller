@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>通道计算器配置工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #templates {
+            margin-bottom: 20px;
+        }
+        .template-btn {
+            background-color: #2ecc71;
+        }
+        .template-btn:hover {
+            background-color: #27ae60;
+        }
+        #messageContainer {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f2f2f2;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+        }
+        .tab-content {
+            display: none;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .hash-display {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            margin-bottom: 15px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        .hash-label {
+            color: #666;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .hash-match {
+            color: #28a745;
+        }
+        .hash-mismatch {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <h1>通道计算器配置工具</h1>
+    
+    <div class="tabs">
+        <div class="tab active" id="csvTab">CSV编辑器</div>
+        <div class="tab" id="binaryTab">二进制转换器</div>
+        <div class="tab" id="helpTab">帮助文档</div>
+    </div>
+    
+    <div id="messageContainer"></div>
+    
+    <div id="csvContent" class="tab-content active">
+        <h2>CSV编辑器</h2>
+        
+        <div id="templates">
+            <h3>模板：</h3>
+            <button class="template-btn" id="emptyTemplate">空白CSV</button>
+            <button class="template-btn" id="simpleTemplate">简单示例</button>
+            <button class="template-btn" id="complexTemplate">复杂示例</button>
+        </div>
+        
+        <div class="hash-display">
+            <span class="hash-label">CSV哈希值:</span>
+            <span id="csvHash">-</span>
+            <button id="calculateCsvHash" style="float: right; margin: -5px 0; padding: 5px 10px;">计算哈希</button>
+        </div>
+        
+        <textarea id="csvTextarea" placeholder="在此输入或粘贴CSV格式的端口配置数据..."></textarea>
+        
+        <button id="validateCSV">验证CSV</button>
+        <button id="saveCSV">保存CSV</button>
+        <button id="convertToBinary">转换为二进制</button>
+    </div>
+    
+    <div id="binaryContent" class="tab-content">
+        <h2>二进制转换器</h2>
+        
+        <h3>文件上传</h3>
+        <input type="file" id="binaryFileInput" accept=".bin">
+        <button id="loadBinaryFile">加载二进制文件</button>
+        
+        <h3>转换结果</h3>
+        <div class="hash-display">
+            <span class="hash-label">转换后CSV哈希值:</span>
+            <span id="convertedCsvHash">-</span>
+            <button id="calculateConvertedHash" style="float: right; margin: -5px 0; padding: 5px 10px;">计算哈希</button>
+        </div>
+        <div id="hashCompareResult" class="hash-display" style="display: none;">
+            <span class="hash-label">哈希比较结果:</span>
+            <span id="hashCompareMsg"></span>
+        </div>
+        <div id="diffResult" style="display: none; margin-top: 15px;">
+            <h4>数据差异对比</h4>
+            <div style="display: flex; margin-bottom: 10px;">
+                <div style="flex: 1; margin-right: 10px;">
+                    <div class="hash-label">原始数据行数: <span id="originalLineCount">0</span></div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="hash-label">转换后数据行数: <span id="convertedLineCount">0</span></div>
+                </div>
+            </div>
+            <div id="missingLines" style="margin-bottom: 10px; display: none;">
+                <div class="hash-label" style="color: #dc3545;">转换后丢失的行:</div>
+                <textarea id="missingLinesText" style="height: 100px; width: 100%; background-color: #fff3f3;" readonly></textarea>
+            </div>
+            <div id="addedLines" style="margin-bottom: 10px; display: none;">
+                <div class="hash-label" style="color: #28a745;">转换后新增的行:</div>
+                <textarea id="addedLinesText" style="height: 100px; width: 100%; background-color: #f0fff0;" readonly></textarea>
+            </div>
+            <div id="delaySpeedInfo" style="margin-bottom: 10px; display: none;">
+                <div class="hash-label" style="color: #0c5460;">延迟和速度参数统计:</div>
+                <div id="delaySpeedInfoText" style="padding: 10px; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px;"></div>
+            </div>
+            <div id="linearInputInfo" style="margin-bottom: 10px; display: none;">
+                <div class="hash-label" style="color: #856404;">线性输入参数统计:</div>
+                <div id="linearInputInfoText" style="padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;"></div>
+            </div>
+            <div id="modeInfo" style="margin-bottom: 10px; display: none;">
+                <div class="hash-label" style="color: #721c24;">映射模式统计:</div>
+                <div id="modeInfoText" style="padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px;"></div>
+            </div>
+        </div>
+        
+        <textarea id="convertedCSV" placeholder="转换后的CSV数据将显示在这里..." readonly></textarea>
+        
+        <button id="saveConvertedCSV">保存转换后的CSV</button>
+        <button id="compareHashes">比较数据</button>
+    </div>
+    
+    <div id="helpContent" class="tab-content">
+        <h2>帮助文档</h2>
+        
+        <h3>格式说明</h3>
+        <table>
+            <tr>
+                <th>记录类型</th>
+                <th>格式</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>接口数量</td>
+                <td>PORT_COUNT,&lt;数量&gt;</td>
+                <td>指定配置中的接口总数，范围1-100</td>
+            </tr>
+            <tr>
+                <td>接口参数</td>
+                <td>PORT_PARAM,&lt;接口ID&gt;,&lt;接口类型&gt;,&lt;最大值&gt;,&lt;最小值&gt;,[&lt;中位值&gt;]</td>
+                <td>
+                    接口类型：0=NST(无中位点)，1=ST(有中位点)<br>
+                    最大值和最小值：输出范围<br>
+                    中位值：仅ST类型需要
+                </td>
+            </tr>
+            <tr>
+                <td>线性输入参数</td>
+                <td>INPUT_PARAM,&lt;输入ID&gt;,&lt;EXP&gt;,&lt;行程上&gt;,&lt;行程下&gt;,&lt;中位点&gt;,&lt;偏移&gt;</td>
+                <td>
+                    输入ID：1-20（仅支持20个线性输入）<br>
+                    EXP：指数曲线，范围-100到100<br>
+                    行程上：上行程限制，范围0-200<br>
+                    行程下：下行程限制，范围0-200<br>
+                    中位点：中位值，范围-100到100<br>
+                    偏移：偏移量，范围-100到100
+                </td>
+            </tr>
+            <tr>
+                <td>映射表</td>
+                <td>PORT_MAP,&lt;接口ID&gt;,&lt;输入ID&gt;,&lt;方向1EXP&gt;,&lt;方向2EXP&gt;,&lt;方向1舵量&gt;,&lt;方向2舵量&gt;,&lt;偏移量&gt;,&lt;延迟&gt;,&lt;速度&gt;,&lt;映射模式&gt;</td>
+                <td>
+                    输入ID：1-36<br>
+                    EXP：指数曲线参数，范围0-100<br>
+                    舵量：输出百分比，范围0-100<br>
+                    偏移量：输出偏移量<br>
+                    延迟：输入响应延迟，单位毫秒，范围0-10000<br>
+                    速度：输出变化速度限制，范围0-100，0为不限制<br>
+                    映射模式：0=相加，1=相乘，2=替代
+                </td>
+            </tr>
+        </table>
+        
+        <h3>使用说明</h3>
+        <ol>
+            <li><strong>CSV编辑器</strong>：用于创建和编辑通道配置数据。</li>
+            <li><strong>二进制转换器</strong>：用于将二进制文件转换回CSV格式。</li>
+            <li>使用模板按钮快速生成不同复杂度的CSV示例。</li>
+            <li>编辑完成后，可以验证CSV格式是否正确。</li>
+            <li>将CSV转换为二进制文件以用于设备加载。</li>
+            <li>上传已有的二进制文件进行查看和编辑。</li>
+        </ol>
+        
+        <h3>文件格式</h3>
+        <ul>
+            <li>CSV文件：文本格式，可以使用任何文本编辑器打开和编辑。</li>
+            <li>二进制文件：紧凑的二进制格式，减小文件大小，加快加载速度。</li>
+        </ul>
+    </div>
+    
+    <script src="csvToBinary.js"></script>
+    <script>
+        // DOM元素引用
+        const csvTextarea = document.getElementById('csvTextarea');
+        const convertedCSV = document.getElementById('convertedCSV');
+        const validateCSVBtn = document.getElementById('validateCSV');
+        const saveCSVBtn = document.getElementById('saveCSV');
+        const convertToBinaryBtn = document.getElementById('convertToBinary');
+        const loadBinaryFileBtn = document.getElementById('loadBinaryFile');
+        const binaryFileInput = document.getElementById('binaryFileInput');
+        const saveConvertedCSVBtn = document.getElementById('saveConvertedCSV');
+        const messageContainer = document.getElementById('messageContainer');
+        const emptyTemplateBtn = document.getElementById('emptyTemplate');
+        const simpleTemplateBtn = document.getElementById('simpleTemplate');
+        const complexTemplateBtn = document.getElementById('complexTemplate');
+        const csvHash = document.getElementById('csvHash');
+        const convertedCsvHash = document.getElementById('convertedCsvHash');
+        const calculateCsvHash = document.getElementById('calculateCsvHash');
+        const calculateConvertedHash = document.getElementById('calculateConvertedHash');
+        const compareHashesBtn = document.getElementById('compareHashes');
+        const hashCompareResult = document.getElementById('hashCompareResult');
+        const hashCompareMsg = document.getElementById('hashCompareMsg');
+        
+        // 标签页切换
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // 更改激活标签页
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // 显示相应内容
+                const tabId = tab.id;
+                const contentId = tabId.replace('Tab', 'Content');
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(contentId).classList.add('active');
+            });
+        });
+        
+        // 显示消息函数
+        function showMessage(message, type = 'info') {
+            messageContainer.className = type;
+            messageContainer.textContent = message;
+            
+            // 5秒后自动清除消息
+            setTimeout(() => {
+                messageContainer.className = '';
+                messageContainer.textContent = '';
+            }, 5000);
+        }
+        
+        // 哈希函数 - 使用简单的哈希算法（基于字符串的哈希）
+        async function calculateHash(text) {
+            if (!text || typeof text !== 'string' || text.trim() === '') {
+                return '-';
+            }
+            
+            // 使用SHA-256算法计算哈希
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            
+            // 将哈希值转换为十六进制字符串
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            return hashHex;
+        }
+        
+        // 规范化CSV内容（忽略注释和空行）
+        function normalizeCSV(csvText) {
+            // 移除所有注释和空行
+            const lines = csvText.split('\n')
+                .filter(line => line.trim() && !line.trim().startsWith('#'));
+            
+            // 修剪每行的空白
+            const trimmedLines = lines.map(line => 
+                line.split(',').map(part => part.trim()).join(',')
+            );
+            
+            return trimmedLines.join('\n');
+        }
+        
+        // 提取有效数据行（过滤注释，但保留空行）
+        function extractDataLines(csvText) {
+            return csvText.split('\n')
+                .filter(line => !line.trim().startsWith('#'))
+                .map(line => line.trim());
+        }
+        
+        // 解析CSV数据提取端口参数和映射表
+        function parseCSVData(csvText) {
+            const lines = extractDataLines(csvText);
+            const result = {
+                portCount: 0,
+                portParams: {},  // 使用对象存储，便于通过ID访问
+                portMaps: {},    // 使用对象，每个端口ID对应一个映射数组
+                inputParams: {}  // 新增：线性输入参数
+            };
+            
+            lines.forEach(line => {
+                if (!line.trim()) return;
+                
+                const parts = line.split(',').map(part => part.trim());
+                const recordType = parts[0];
+                
+                if (recordType === 'PORT_COUNT') {
+                    result.portCount = parseInt(parts[1], 10);
+                }
+                else if (recordType === 'PORT_PARAM') {
+                    const portId = parseInt(parts[1], 10);
+                    const paramData = {
+                        portType: parseInt(parts[2], 10),
+                        maxValue: parseInt(parts[3], 10),
+                        minValue: parseInt(parts[4], 10)
+                    };
+                    
+                    if (paramData.portType === 1 && parts.length > 5) {
+                        paramData.midValue = parseInt(parts[5], 10);
+                    }
+                    
+                    result.portParams[portId] = paramData;
+                }
+                else if (recordType === 'INPUT_PARAM') {
+                    if (parts.length < 7) {
+                        console.warn(`警告: 线性输入参数行参数不足，应有7个参数: ${line}`);
+                        return;
+                    }
+                    
+                    const inputId = parseInt(parts[1], 10);
+                    const inputData = {
+                        exp: parseInt(parts[2], 10),
+                        travelUp: parseInt(parts[3], 10),
+                        travelDown: parseInt(parts[4], 10),
+                        center: parseInt(parts[5], 10),
+                        offset: parseInt(parts[6], 10)
+                    };
+                    
+                    result.inputParams[inputId] = inputData;
+                }
+                else if (recordType === 'PORT_MAP') {
+                    if (parts.length < 11) {  // 增加到11，包含映射模式
+                        console.warn(`警告: 映射表行参数不足，应有11个参数: ${line}`);
+                        return;
+                    }
+                    
+                    const portId = parseInt(parts[1], 10);
+                    const mapData = {
+                        inputId: parseInt(parts[2], 10),
+                        exp1: parseInt(parts[3], 10),
+                        exp2: parseInt(parts[4], 10),
+                        rate1: parseInt(parts[5], 10),
+                        rate2: parseInt(parts[6], 10),
+                        offset: parseInt(parts[7], 10),
+                        delay: parseInt(parts[8], 10),
+                        speed: parseInt(parts[9], 10),
+                        mode: parseInt(parts[10], 10)
+                    };
+                    
+                    if (!result.portMaps[portId]) {
+                        result.portMaps[portId] = [];
+                    }
+                    
+                    result.portMaps[portId].push(mapData);
+                }
+            });
+            
+            return result;
+        }
+        
+        // 比较两个CSV的差异
+        function compareCSVs(originalCSV, convertedCSV) {
+            const originalData = parseCSVData(originalCSV);
+            const convertedData = parseCSVData(convertedCSV);
+            
+            const missingLines = [];
+            const addedLines = [];
+            let delaySpeedDiffs = {
+                delayDiffs: 0,
+                speedDiffs: 0,
+                maxDelayDiff: 0,
+                maxSpeedDiff: 0,
+                portsWithDelayChanges: new Set(),
+                portsWithSpeedChanges: new Set()
+            };
+            
+            let linearInputDiffs = {
+                expDiffs: 0,
+                travelUpDiffs: 0,
+                travelDownDiffs: 0,
+                centerDiffs: 0,
+                offsetDiffs: 0,
+                maxExpDiff: 0,
+                maxTravelUpDiff: 0,
+                maxTravelDownDiff: 0,
+                maxCenterDiff: 0,
+                maxOffsetDiff: 0,
+                inputsWithChanges: new Set()
+            };
+            
+            let modeDiffs = {
+                count: 0,
+                portsWithModeChanges: new Set()
+            };
+            
+            // 检查端口数量
+            if (originalData.portCount !== convertedData.portCount) {
+                missingLines.push(`端口数量不匹配: 原始=${originalData.portCount}, 转换后=${convertedData.portCount}`);
+            }
+            
+            // 检查端口参数
+            const allPortIds = new Set([
+                ...Object.keys(originalData.portParams), 
+                ...Object.keys(convertedData.portParams)
+            ].map(Number));
+            
+            allPortIds.forEach(portId => {
+                const originalParam = originalData.portParams[portId];
+                const convertedParam = convertedData.portParams[portId];
+                
+                if (!originalParam && convertedParam) {
+                    addedLines.push(`PORT_PARAM,${portId},...`);
+                } 
+                else if (originalParam && !convertedParam) {
+                    missingLines.push(`PORT_PARAM,${portId},...`);
+                }
+                else if (originalParam && convertedParam) {
+                    // 检查参数是否一致
+                    if (originalParam.portType !== convertedParam.portType) {
+                        missingLines.push(`接口${portId}类型不匹配: 原始=${originalParam.portType}, 转换后=${convertedParam.portType}`);
+                    }
+                    if (originalParam.maxValue !== convertedParam.maxValue) {
+                        missingLines.push(`接口${portId}最大值不匹配: 原始=${originalParam.maxValue}, 转换后=${convertedParam.maxValue}`);
+                    }
+                    if (originalParam.minValue !== convertedParam.minValue) {
+                        missingLines.push(`接口${portId}最小值不匹配: 原始=${originalParam.minValue}, 转换后=${convertedParam.minValue}`);
+                    }
+                    if (originalParam.portType === 1 && originalParam.midValue !== convertedParam.midValue) {
+                        missingLines.push(`接口${portId}中位值不匹配: 原始=${originalParam.midValue}, 转换后=${convertedParam.midValue}`);
+                    }
+                }
+            });
+            
+            // 检查线性输入参数
+            const allInputIds = new Set([
+                ...Object.keys(originalData.inputParams || {}), 
+                ...Object.keys(convertedData.inputParams || {})
+            ].map(Number));
+            
+            allInputIds.forEach(inputId => {
+                const originalInput = originalData.inputParams && originalData.inputParams[inputId];
+                const convertedInput = convertedData.inputParams && convertedData.inputParams[inputId];
+                
+                if (!originalInput && convertedInput) {
+                    addedLines.push(`INPUT_PARAM,${inputId},...`);
+                    linearInputDiffs.inputsWithChanges.add(inputId);
+                } 
+                else if (originalInput && !convertedInput) {
+                    missingLines.push(`INPUT_PARAM,${inputId},...`);
+                    linearInputDiffs.inputsWithChanges.add(inputId);
+                }
+                else if (originalInput && convertedInput) {
+                    let hasChanges = false;
+                    
+                    // 检查EXP值
+                    if (originalInput.exp !== convertedInput.exp) {
+                        missingLines.push(`线性输入${inputId}的EXP值不匹配: 原始=${originalInput.exp}, 转换后=${convertedInput.exp}`);
+                        linearInputDiffs.expDiffs++;
+                        hasChanges = true;
+                        
+                        const diff = Math.abs(originalInput.exp - convertedInput.exp);
+                        if (diff > linearInputDiffs.maxExpDiff) {
+                            linearInputDiffs.maxExpDiff = diff;
+                        }
+                    }
+                    
+                    // 检查行程上值
+                    if (originalInput.travelUp !== convertedInput.travelUp) {
+                        missingLines.push(`线性输入${inputId}的行程上值不匹配: 原始=${originalInput.travelUp}, 转换后=${convertedInput.travelUp}`);
+                        linearInputDiffs.travelUpDiffs++;
+                        hasChanges = true;
+                        
+                        const diff = Math.abs(originalInput.travelUp - convertedInput.travelUp);
+                        if (diff > linearInputDiffs.maxTravelUpDiff) {
+                            linearInputDiffs.maxTravelUpDiff = diff;
+                        }
+                    }
+                    
+                    // 检查行程下值
+                    if (originalInput.travelDown !== convertedInput.travelDown) {
+                        missingLines.push(`线性输入${inputId}的行程下值不匹配: 原始=${originalInput.travelDown}, 转换后=${convertedInput.travelDown}`);
+                        linearInputDiffs.travelDownDiffs++;
+                        hasChanges = true;
+                        
+                        const diff = Math.abs(originalInput.travelDown - convertedInput.travelDown);
+                        if (diff > linearInputDiffs.maxTravelDownDiff) {
+                            linearInputDiffs.maxTravelDownDiff = diff;
+                        }
+                    }
+                    
+                    // 检查中位点值
+                    if (originalInput.center !== convertedInput.center) {
+                        missingLines.push(`线性输入${inputId}的中位点值不匹配: 原始=${originalInput.center}, 转换后=${convertedInput.center}`);
+                        linearInputDiffs.centerDiffs++;
+                        hasChanges = true;
+                        
+                        const diff = Math.abs(originalInput.center - convertedInput.center);
+                        if (diff > linearInputDiffs.maxCenterDiff) {
+                            linearInputDiffs.maxCenterDiff = diff;
+                        }
+                    }
+                    
+                    // 检查偏移值
+                    if (originalInput.offset !== convertedInput.offset) {
+                        missingLines.push(`线性输入${inputId}的偏移值不匹配: 原始=${originalInput.offset}, 转换后=${convertedInput.offset}`);
+                        linearInputDiffs.offsetDiffs++;
+                        hasChanges = true;
+                        
+                        const diff = Math.abs(originalInput.offset - convertedInput.offset);
+                        if (diff > linearInputDiffs.maxOffsetDiff) {
+                            linearInputDiffs.maxOffsetDiff = diff;
+                        }
+                    }
+                    
+                    if (hasChanges) {
+                        linearInputDiffs.inputsWithChanges.add(inputId);
+                    }
+                }
+            });
+            
+            // 检查映射表
+            allPortIds.forEach(portId => {
+                const originalMaps = originalData.portMaps[portId] || [];
+                const convertedMaps = convertedData.portMaps[portId] || [];
+                
+                // 统计每个输入ID的出现次数
+                function countInputIds(maps) {
+                    const counter = {};
+                    maps.forEach(map => {
+                        const inputId = map.inputId;
+                        counter[inputId] = (counter[inputId] || 0) + 1;
+                    });
+                    return counter;
+                }
+                
+                const originalCounter = countInputIds(originalMaps);
+                const convertedCounter = countInputIds(convertedMaps);
+                
+                // 检查是否有丢失的映射
+                Object.keys(originalCounter).forEach(inputId => {
+                    const originalCount = originalCounter[inputId];
+                    const convertedCount = convertedCounter[inputId] || 0;
+                    
+                    if (originalCount > convertedCount) {
+                        missingLines.push(`接口${portId}的输入${inputId}映射丢失: 原始=${originalCount}个, 转换后=${convertedCount}个`);
+                    }
+                });
+                
+                // 检查是否有新增的映射
+                Object.keys(convertedCounter).forEach(inputId => {
+                    const convertedCount = convertedCounter[inputId];
+                    const originalCount = originalCounter[inputId] || 0;
+                    
+                    if (convertedCount > originalCount) {
+                        addedLines.push(`接口${portId}的输入${inputId}映射新增: 原始=${originalCount}个, 转换后=${convertedCount}个`);
+                    }
+                });
+                
+                // 检查每个输入ID的参数
+                originalMaps.forEach(originalMap => {
+                    const inputId = originalMap.inputId;
+                    const convertedMap = convertedMaps.find(m => m.inputId === inputId);
+                    
+                    if (convertedMap) {
+                        // 检查延迟参数
+                        if (originalMap.delay !== convertedMap.delay) {
+                            missingLines.push(`接口${portId}输入${inputId}的延迟参数不匹配: 原始=${originalMap.delay}ms, 转换后=${convertedMap.delay}ms`);
+                            delaySpeedDiffs.delayDiffs++;
+                            delaySpeedDiffs.portsWithDelayChanges.add(portId);
+                            
+                            const delayDiff = Math.abs(originalMap.delay - convertedMap.delay);
+                            if (delayDiff > delaySpeedDiffs.maxDelayDiff) {
+                                delaySpeedDiffs.maxDelayDiff = delayDiff;
+                            }
+                        }
+                        
+                        // 检查速度参数
+                        if (originalMap.speed !== convertedMap.speed) {
+                            missingLines.push(`接口${portId}输入${inputId}的速度参数不匹配: 原始=${originalMap.speed}%, 转换后=${convertedMap.speed}%`);
+                            delaySpeedDiffs.speedDiffs++;
+                            delaySpeedDiffs.portsWithSpeedChanges.add(portId);
+                            
+                            const speedDiff = Math.abs(originalMap.speed - convertedMap.speed);
+                            if (speedDiff > delaySpeedDiffs.maxSpeedDiff) {
+                                delaySpeedDiffs.maxSpeedDiff = speedDiff;
+                            }
+                        }
+                        
+                        // 检查映射模式参数
+                        if (originalMap.mode !== convertedMap.mode) {
+                            const modeNames = ['相加', '相乘', '替代'];
+                            const originalModeName = modeNames[originalMap.mode] || '未知';
+                            const convertedModeName = modeNames[convertedMap.mode] || '未知';
+                            
+                            missingLines.push(`接口${portId}输入${inputId}的映射模式不匹配: 原始=${originalMap.mode}(${originalModeName}), 转换后=${convertedMap.mode}(${convertedModeName})`);
+                            modeDiffs.count++;
+                            modeDiffs.portsWithModeChanges.add(portId);
+                        }
+                    }
+                });
+                
+                // 检查映射参数是否一致 (这部分较复杂，简化处理为比较映射数量)
+                if (originalMaps.length !== convertedMaps.length) {
+                    if (originalMaps.length > convertedMaps.length) {
+                        missingLines.push(`接口${portId}的映射数量减少: 原始=${originalMaps.length}个, 转换后=${convertedMaps.length}个`);
+                    } else {
+                        addedLines.push(`接口${portId}的映射数量增加: 原始=${originalMaps.length}个, 转换后=${convertedMaps.length}个`);
+                    }
+                }
+            });
+            
+            // 计算有效数据行数（不含空行和注释）
+            const originalLines = extractDataLines(originalCSV).filter(line => line.trim() !== '');
+            const convertedLines = extractDataLines(convertedCSV).filter(line => line.trim() !== '');
+            
+            return {
+                originalLineCount: originalLines.length,
+                convertedLineCount: convertedLines.length,
+                missingLines,
+                addedLines,
+                delaySpeedDiffs,
+                linearInputDiffs,
+                modeDiffs
+            };
+        }
+        
+        // 计算CSV哈希值
+        calculateCsvHash.addEventListener('click', async () => {
+            const csvText = csvTextarea.value.trim();
+            if (!csvText) {
+                showMessage('CSV内容为空，无法计算哈希值', 'error');
+                return;
+            }
+            
+            const normalizedText = normalizeCSV(csvText);
+            const hash = await calculateHash(normalizedText);
+            csvHash.textContent = hash;
+            showMessage('CSV哈希值计算完成', 'info');
+        });
+        
+        // 计算转换后CSV哈希值
+        calculateConvertedHash.addEventListener('click', async () => {
+            const csvText = convertedCSV.value.trim();
+            if (!csvText) {
+                showMessage('转换后的CSV内容为空，无法计算哈希值', 'error');
+                return;
+            }
+            
+            const normalizedText = normalizeCSV(csvText);
+            const hash = await calculateHash(normalizedText);
+            convertedCsvHash.textContent = hash;
+            showMessage('转换后CSV哈希值计算完成', 'info');
+        });
+        
+        // 比较哈希值
+        compareHashesBtn.addEventListener('click', async () => {
+            const csvText = csvTextarea.value.trim();
+            const convertedText = convertedCSV.value.trim();
+            
+            if (!csvText || !convertedText) {
+                showMessage('CSV内容为空，无法比较数据', 'error');
+                return;
+            }
+            
+            // 计算哈希值
+            const normalizedOriginal = normalizeCSV(csvText);
+            const normalizedConverted = normalizeCSV(convertedText);
+            
+            const originalHash = await calculateHash(normalizedOriginal);
+            const convertedHash = await calculateHash(normalizedConverted);
+            
+            csvHash.textContent = originalHash;
+            convertedCsvHash.textContent = convertedHash;
+            
+            hashCompareResult.style.display = 'block';
+            
+            // 哈希比较结果
+            if (originalHash === convertedHash) {
+                hashCompareMsg.textContent = '数据一致，转换前后内容相同';
+                hashCompareMsg.className = 'hash-match';
+                showMessage('转换前后数据一致', 'success');
+            } else {
+                hashCompareMsg.textContent = '数据不一致，转换前后内容有差异';
+                hashCompareMsg.className = 'hash-mismatch';
+                showMessage('转换前后数据不一致，查看详细差异', 'error');
+                
+                // 显示详细差异
+                const diffResult = document.getElementById('diffResult');
+                const originalLineCount = document.getElementById('originalLineCount');
+                const convertedLineCount = document.getElementById('convertedLineCount');
+                const missingLines = document.getElementById('missingLines');
+                const missingLinesText = document.getElementById('missingLinesText');
+                const addedLines = document.getElementById('addedLines');
+                const addedLinesText = document.getElementById('addedLinesText');
+                const delaySpeedInfo = document.getElementById('delaySpeedInfo');
+                const delaySpeedInfoText = document.getElementById('delaySpeedInfoText');
+                const linearInputInfo = document.getElementById('linearInputInfo');
+                const linearInputInfoText = document.getElementById('linearInputInfoText');
+                const modeInfo = document.getElementById('modeInfo');
+                const modeInfoText = document.getElementById('modeInfoText');
+                
+                // 分析差异
+                const diff = compareCSVs(csvText, convertedText);
+                
+                // 更新UI
+                originalLineCount.textContent = diff.originalLineCount;
+                convertedLineCount.textContent = diff.convertedLineCount;
+                
+                // 显示丢失的行
+                if (diff.missingLines.length > 0) {
+                    missingLines.style.display = 'block';
+                    missingLinesText.value = diff.missingLines.join('\n');
+                } else {
+                    missingLines.style.display = 'none';
+                }
+                
+                // 显示新增的行
+                if (diff.addedLines.length > 0) {
+                    addedLines.style.display = 'block';
+                    addedLinesText.value = diff.addedLines.join('\n');
+                } else {
+                    addedLines.style.display = 'none';
+                }
+                
+                // 显示延迟和速度参数统计
+                if (diff.delaySpeedDiffs.delayDiffs > 0 || diff.delaySpeedDiffs.speedDiffs > 0) {
+                    delaySpeedInfo.style.display = 'block';
+                    
+                    let infoHTML = '';
+                    if (diff.delaySpeedDiffs.delayDiffs > 0) {
+                        infoHTML += `<p>发现<strong>${diff.delaySpeedDiffs.delayDiffs}</strong>个延迟参数不匹配，涉及<strong>${diff.delaySpeedDiffs.portsWithDelayChanges.size}</strong>个接口。</p>`;
+                        infoHTML += `<p>最大延迟差异：<strong>${diff.delaySpeedDiffs.maxDelayDiff}ms</strong></p>`;
+                    }
+                    
+                    if (diff.delaySpeedDiffs.speedDiffs > 0) {
+                        infoHTML += `<p>发现<strong>${diff.delaySpeedDiffs.speedDiffs}</strong>个速度参数不匹配，涉及<strong>${diff.delaySpeedDiffs.portsWithSpeedChanges.size}</strong>个接口。</p>`;
+                        infoHTML += `<p>最大速度差异：<strong>${diff.delaySpeedDiffs.maxSpeedDiff}%</strong></p>`;
+                    }
+                    
+                    if (infoHTML) {
+                        delaySpeedInfoText.innerHTML = infoHTML;
+                    } else {
+                        delaySpeedInfo.style.display = 'none';
+                    }
+                } else {
+                    delaySpeedInfo.style.display = 'none';
+                }
+                
+                // 显示线性输入参数统计
+                if (diff.linearInputDiffs.inputsWithChanges.size > 0) {
+                    linearInputInfo.style.display = 'block';
+                    
+                    let infoHTML = `<p>发现<strong>${diff.linearInputDiffs.inputsWithChanges.size}</strong>个线性输入参数有变化：</p>`;
+                    
+                    if (diff.linearInputDiffs.expDiffs > 0) {
+                        infoHTML += `<p>- EXP曲线变化：<strong>${diff.linearInputDiffs.expDiffs}</strong>个，最大差异：<strong>${diff.linearInputDiffs.maxExpDiff}</strong></p>`;
+                    }
+                    
+                    if (diff.linearInputDiffs.travelUpDiffs > 0) {
+                        infoHTML += `<p>- 上行程变化：<strong>${diff.linearInputDiffs.travelUpDiffs}</strong>个，最大差异：<strong>${diff.linearInputDiffs.maxTravelUpDiff}</strong></p>`;
+                    }
+                    
+                    if (diff.linearInputDiffs.travelDownDiffs > 0) {
+                        infoHTML += `<p>- 下行程变化：<strong>${diff.linearInputDiffs.travelDownDiffs}</strong>个，最大差异：<strong>${diff.linearInputDiffs.maxTravelDownDiff}</strong></p>`;
+                    }
+                    
+                    if (diff.linearInputDiffs.centerDiffs > 0) {
+                        infoHTML += `<p>- 中位点变化：<strong>${diff.linearInputDiffs.centerDiffs}</strong>个，最大差异：<strong>${diff.linearInputDiffs.maxCenterDiff}</strong></p>`;
+                    }
+                    
+                    if (diff.linearInputDiffs.offsetDiffs > 0) {
+                        infoHTML += `<p>- 偏移量变化：<strong>${diff.linearInputDiffs.offsetDiffs}</strong>个，最大差异：<strong>${diff.linearInputDiffs.maxOffsetDiff}</strong></p>`;
+                    }
+                    
+                    linearInputInfoText.innerHTML = infoHTML;
+                } else {
+                    linearInputInfo.style.display = 'none';
+                }
+                
+                // 显示映射模式差异
+                if (diff.modeDiffs && diff.modeDiffs.count > 0) {
+                    modeInfo.style.display = 'block';
+                    
+                    let infoHTML = `<p>发现<strong>${diff.modeDiffs.count}</strong>个映射模式不匹配，涉及<strong>${diff.modeDiffs.portsWithModeChanges.size}</strong>个接口。</p>`;
+                    infoHTML += `<p>模式变化可能影响输入的计算方式：0=相加，1=相乘，2=替代</p>`;
+                    
+                    modeInfoText.innerHTML = infoHTML;
+                } else {
+                    modeInfo.style.display = 'none';
+                }
+                
+                diffResult.style.display = 'block';
+            }
+        });
+        
+        // 验证CSV
+        validateCSVBtn.addEventListener('click', () => {
+            const csvText = csvTextarea.value.trim();
+            if (!csvText) {
+                showMessage('CSV内容为空', 'error');
+                return;
+            }
+            
+            try {
+                const data = window.portCalc.parseCSV(csvText);
+                showMessage(`CSV验证成功：包含${data.portCount}个接口，${data.portParams.length}个参数配置，${data.portMaps.length}个映射表项`, 'success');
+            } catch (error) {
+                showMessage(`CSV验证失败：${error.message}`, 'error');
+            }
+        });
+        
+        // 保存CSV文件
+        saveCSVBtn.addEventListener('click', () => {
+            const csvText = csvTextarea.value.trim();
+            if (!csvText) {
+                showMessage('CSV内容为空', 'error');
+                return;
+            }
+            
+            const blob = new Blob([csvText], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'port_config.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('CSV文件保存成功', 'success');
+        });
+        
+        // 转换为二进制
+        convertToBinaryBtn.addEventListener('click', () => {
+            const csvText = csvTextarea.value.trim();
+            if (!csvText) {
+                showMessage('CSV内容为空', 'error');
+                return;
+            }
+            
+            showMessage('正在转换为二进制格式...', 'info');
+            
+            // 延迟执行转换，避免UI阻塞
+            setTimeout(() => {
+                try {
+                    // 执行转换
+                    const startTime = performance.now();
+                    const binaryData = window.portCalc.csvToBinary(csvText);
+                    const endTime = performance.now();
+                    
+                    // 显示文件大小信息和转换时间
+                    const fileSizeKB = (binaryData.byteLength / 1024).toFixed(2);
+                    const conversionTime = (endTime - startTime).toFixed(2);
+                    
+                    // 创建下载链接
+                    const blob = new Blob([binaryData], { type: 'application/octet-stream' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'port_config.bin';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showMessage(`二进制文件转换成功并已下载（文件大小：${fileSizeKB} KB，转换耗时：${conversionTime} ms）`, 'success');
+                    
+                    // 打印统计信息用于调试
+                    const lines = csvText.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+                    const portCount = lines.filter(line => line.startsWith('PORT_PARAM')).length;
+                    const mapCount = lines.filter(line => line.startsWith('PORT_MAP')).length;
+                    console.log(`转换统计：${portCount}个端口，${mapCount}个映射，文件大小：${fileSizeKB} KB`);
+                    
+                    // 自动计算原始CSV哈希值
+                    const normalizedText = normalizeCSV(csvText);
+                    calculateHash(normalizedText).then(hash => {
+                        csvHash.textContent = hash;
+                    });
+                } catch (error) {
+                    showMessage(`转换失败：${error.message}`, 'error');
+                    console.error('转换错误详情:', error);
+                    
+                    // 尝试提供更详细的错误信息以帮助诊断
+                    if (error.message.includes('outside the bounds') || error.message.includes('超出缓冲区范围')) {
+                        showMessage('转换失败：二进制数据边界错误。可能的原因：(1)数据太大 (2)端口ID不连续 (3)接口参数与映射表不匹配', 'error');
+                        console.error('建议：检查CSV数据是否有错误，确保接口ID连续且从1开始');
+                    } else if (error.message.includes('接口ID不连续')) {
+                        showMessage('转换失败：端口ID必须从1开始连续编号。请检查并修正PORT_PARAM中的接口ID', 'error');
+                    }
+                }
+            }, 50);
+        });
+        
+        // 加载二进制文件
+        loadBinaryFileBtn.addEventListener('click', () => {
+            const file = binaryFileInput.files[0];
+            if (!file) {
+                showMessage('请选择一个二进制文件', 'error');
+                return;
+            }
+            
+            // 检查文件大小
+            if (file.size > 10485760) { // 10MB
+                showMessage('文件过大，请选择小于10MB的文件', 'error');
+                return;
+            }
+            
+            // 检查文件类型（虽然二进制文件可能没有特定的MIME类型）
+            if (file.type && !file.type.includes('application/octet-stream') && !file.type.includes('binary')) {
+                console.warn(`文件类型警告: ${file.type}，期望为二进制文件`);
+            }
+            
+            showMessage('正在读取文件...', 'info');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const binaryData = e.target.result;
+                    
+                    // 检查文件是否为空
+                    if (!binaryData || binaryData.byteLength === 0) {
+                        showMessage('文件内容为空', 'error');
+                        return;
+                    }
+                    
+                    // 检查最小文件大小（至少应该包含一个接口的数据）
+                    if (binaryData.byteLength < 7) { // 2字节接口数量 + 至少5字节的NST接口
+                        showMessage('文件格式无效：文件太小，可能不是有效的端口配置文件', 'error');
+                        return;
+                    }
+                    
+                    showMessage('正在转换数据...', 'info');
+                    const csvData = window.portCalc.binaryToCSV(binaryData);
+                    convertedCSV.value = csvData;
+                    
+                    // 自动计算转换后的CSV哈希值
+                    const normalizedText = normalizeCSV(csvData);
+                    calculateHash(normalizedText).then(hash => {
+                        convertedCsvHash.textContent = hash;
+                    });
+                    
+                    // 检查转换结果是否包含错误消息
+                    if (csvData.includes('# 错误：')) {
+                        showMessage('文件已转换，但存在一些错误。请检查转换结果中的错误信息。', 'error');
+                    } else {
+                        const fileSizeKB = (binaryData.byteLength / 1024).toFixed(2);
+                        showMessage(`二进制文件（${fileSizeKB} KB）已成功转换为CSV`, 'success');
+                    }
+                } catch (error) {
+                    showMessage(`转换失败：${error.message}`, 'error');
+                    console.error('文件读取错误详情:', error);
+                    
+                    // 尝试显示文件的前几个字节，可能有助于调试
+                    if (e.target.result && e.target.result.byteLength > 0) {
+                        const view = new DataView(e.target.result);
+                        let hexDump = '文件前16字节：';
+                        const bytesToShow = Math.min(16, e.target.result.byteLength);
+                        for (let i = 0; i < bytesToShow; i++) {
+                            try {
+                                hexDump += ' ' + view.getUint8(i).toString(16).padStart(2, '0');
+                            } catch (e) {
+                                hexDump += ' ??';
+                            }
+                        }
+                        console.log(hexDump);
+                    }
+                }
+            };
+            reader.onerror = function(error) {
+                showMessage('读取文件时发生错误', 'error');
+                console.error('文件读取错误:', error);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        // 保存转换后的CSV
+        saveConvertedCSVBtn.addEventListener('click', () => {
+            const csvText = convertedCSV.value.trim();
+            if (!csvText) {
+                showMessage('转换后的CSV内容为空', 'error');
+                return;
+            }
+            
+            const blob = new Blob([csvText], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_port_config.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('转换后的CSV文件保存成功', 'success');
+        });
+        
+        // 模板函数
+        emptyTemplateBtn.addEventListener('click', () => {
+            csvTextarea.value = `# 接口数量（1-100）
+PORT_COUNT,1
+
+# 接口参数部分
+# 格式：PORT_PARAM,接口ID,接口类型(0=NST/1=ST),最大值,最小值,[中位值(仅ST类型需要)]
+PORT_PARAM,1,0,1000,0
+
+# 线性输入参数部分
+# 格式：INPUT_PARAM,输入ID,EXP,行程上,行程下,中位点,偏移
+INPUT_PARAM,1,0,100,100,0,0
+
+# 映射表部分
+# 格式：PORT_MAP,接口ID,输入ID(1-36),方向1EXP,方向2EXP,方向1舵量,方向2舵量,偏移量,延迟,速度,映射模式(0=相加/1=相乘/2=替代)
+PORT_MAP,1,1,50,50,100,100,0,0,0,0`;
+            showMessage('已加载空白CSV模板', 'info');
+            calculateHash(normalizeCSV(csvTextarea.value)).then(hash => {
+                csvHash.textContent = hash;
+            });
+        });
+        
+        simpleTemplateBtn.addEventListener('click', () => {
+            csvTextarea.value = `# 接口数量（1-100）
+PORT_COUNT,6
+
+# 接口参数部分
+# 格式：PORT_PARAM,接口ID,接口类型(0=NST/1=ST),最大值,最小值,[中位值(仅ST类型需要)]
+PORT_PARAM,1,0,1000,0
+PORT_PARAM,2,1,1000,0,500
+PORT_PARAM,3,0,1000,0
+PORT_PARAM,4,1,1000,0,500
+PORT_PARAM,5,0,1000,0
+PORT_PARAM,6,1,1000,0,500
+
+# 线性输入参数部分
+# 格式：INPUT_PARAM,输入ID,EXP,行程上,行程下,中位点,偏移
+INPUT_PARAM,1,0,100,100,0,0
+INPUT_PARAM,2,10,120,80,-5,5
+INPUT_PARAM,3,-20,150,150,10,-10
+
+# 映射表部分
+# 格式：PORT_MAP,接口ID,输入ID(1-36),方向1EXP,方向2EXP,方向1舵量,方向2舵量,偏移量,延迟,速度,映射模式(0=相加/1=相乘/2=替代)
+PORT_MAP,1,1,50,50,100,100,0,0,0,0
+PORT_MAP,1,2,50,50,80,80,20,100,50,1
+PORT_MAP,2,3,30,30,100,100,0,0,0,0
+PORT_MAP,2,4,70,70,50,50,0,200,30,2
+PORT_MAP,3,5,50,50,100,100,0,0,0,0
+PORT_MAP,3,6,30,30,70,70,-10,500,20,1
+PORT_MAP,4,7,40,40,100,100,0,0,0,0
+PORT_MAP,4,8,60,60,90,90,5,150,40,2
+PORT_MAP,5,9,50,50,100,100,0,0,0,0
+PORT_MAP,5,10,50,50,60,60,0,300,60,1
+PORT_MAP,6,11,45,45,100,100,0,0,0,0
+PORT_MAP,6,12,55,55,80,80,10,250,70,2`;
+            showMessage('已加载简单CSV模板', 'info');
+            calculateHash(normalizeCSV(csvTextarea.value)).then(hash => {
+                csvHash.textContent = hash;
+            });
+        });
+        
+        complexTemplateBtn.addEventListener('click', () => {
+            csvTextarea.value = `# 接口数量（1-100）
+PORT_COUNT,40
+
+# 接口参数部分
+# 格式：PORT_PARAM,接口ID,接口类型(0=NST/1=ST),最大值,最小值,[中位值(仅ST类型需要)]
+PORT_PARAM,1,0,1000,0
+PORT_PARAM,2,1,1000,0,500
+PORT_PARAM,3,0,1000,0
+PORT_PARAM,4,1,1000,0,500
+PORT_PARAM,5,0,1000,0
+PORT_PARAM,6,1,1000,0,500
+PORT_PARAM,7,0,1000,0
+PORT_PARAM,8,1,1000,0,500
+PORT_PARAM,9,0,1000,0
+PORT_PARAM,10,1,1000,0,500
+PORT_PARAM,11,0,1000,0
+PORT_PARAM,12,1,1000,0,500
+PORT_PARAM,13,0,1000,0
+PORT_PARAM,14,1,1000,0,500
+PORT_PARAM,15,0,1000,0
+PORT_PARAM,16,1,1000,0,500
+PORT_PARAM,17,0,1000,0
+PORT_PARAM,18,1,1000,0,500
+PORT_PARAM,19,0,1000,0
+PORT_PARAM,20,1,1000,0,500
+PORT_PARAM,21,0,1000,0
+PORT_PARAM,22,1,1000,0,500
+PORT_PARAM,23,0,1000,0
+PORT_PARAM,24,1,1000,0,500
+PORT_PARAM,25,0,1000,0
+PORT_PARAM,26,1,1000,0,500
+PORT_PARAM,27,0,1000,0
+PORT_PARAM,28,1,1000,0,500
+PORT_PARAM,29,0,1000,0
+PORT_PARAM,30,1,1000,0,500
+PORT_PARAM,31,0,1000,0
+PORT_PARAM,32,1,1000,0,500
+PORT_PARAM,33,0,1000,0
+PORT_PARAM,34,1,1000,0,500
+PORT_PARAM,35,0,1000,0
+PORT_PARAM,36,1,1000,0,500
+PORT_PARAM,37,0,1000,0
+PORT_PARAM,38,1,1000,0,500
+PORT_PARAM,39,0,1000,0
+PORT_PARAM,40,1,1000,0,500
+
+# 线性输入参数部分
+# 格式：INPUT_PARAM,输入ID,EXP,行程上,行程下,中位点,偏移
+INPUT_PARAM,1,0,100,100,0,0
+INPUT_PARAM,2,20,120,80,-5,5
+INPUT_PARAM,3,-20,150,150,10,-10
+INPUT_PARAM,4,50,180,60,15,0
+INPUT_PARAM,5,-50,200,200,-15,0
+INPUT_PARAM,6,30,90,90,0,20
+INPUT_PARAM,7,-30,110,110,0,-20
+INPUT_PARAM,8,10,130,70,5,10
+INPUT_PARAM,9,-10,70,130,-5,-10
+INPUT_PARAM,10,40,160,140,20,15
+INPUT_PARAM,11,-40,140,160,-20,-15
+INPUT_PARAM,12,25,175,75,0,0
+INPUT_PARAM,13,-25,75,175,0,0
+INPUT_PARAM,14,15,95,105,10,5
+INPUT_PARAM,15,-15,105,95,-10,-5
+INPUT_PARAM,16,35,85,115,5,-5
+INPUT_PARAM,17,-35,115,85,-5,5
+INPUT_PARAM,18,5,125,125,15,10
+INPUT_PARAM,19,-5,175,50,-15,-10
+INPUT_PARAM,20,0,100,100,0,0
+
+# 映射表部分
+# 格式：PORT_MAP,接口ID,输入ID(1-36),方向1EXP,方向2EXP,方向1舵量,方向2舵量,偏移量,延迟,速度,映射模式(0=相加/1=相乘/2=替代)
+PORT_MAP,1,1,50,50,100,100,0,0,0,0
+PORT_MAP,1,2,50,50,80,80,20,100,50,1
+PORT_MAP,2,3,30,30,100,100,0,0,0,0
+PORT_MAP,2,4,70,70,50,50,0,200,30,2
+PORT_MAP,3,5,50,50,100,100,0,0,0,0
+PORT_MAP,3,6,30,30,70,70,-10,500,20,1
+PORT_MAP,4,7,40,40,100,100,0,0,0,0
+PORT_MAP,4,8,60,60,90,90,5,150,40,2
+PORT_MAP,5,9,50,50,100,100,0,0,0,0
+PORT_MAP,5,10,50,50,60,60,0,300,60,1
+PORT_MAP,6,11,45,45,100,100,0,0,0,0
+PORT_MAP,6,12,55,55,80,80,10,250,70,2
+PORT_MAP,7,13,50,50,100,100,0,0,0,0
+PORT_MAP,7,14,40,40,90,90,15,1000,50,1
+PORT_MAP,8,15,60,60,95,95,-5,0,0,0
+PORT_MAP,8,16,50,50,75,75,0,1000,50,2
+PORT_MAP,9,17,45,45,100,100,0,300,25,0
+PORT_MAP,9,18,55,55,80,80,10,400,35,1
+PORT_MAP,10,19,40,40,90,90,15,2000,45,2
+PORT_MAP,10,20,60,60,95,95,-5,2500,55,0
+PORT_MAP,11,21,50,50,100,100,0,1500,65,1
+PORT_MAP,11,22,50,50,80,80,20,1800,75,2
+PORT_MAP,12,23,30,30,100,100,0,1200,85,0
+PORT_MAP,12,24,70,70,50,50,0,800,95,1
+PORT_MAP,13,25,50,50,100,100,0,750,15,2
+PORT_MAP,13,26,30,30,70,70,-10,850,25,0
+PORT_MAP,14,27,40,40,100,100,0,550,35,1
+PORT_MAP,14,28,60,60,90,90,5,350,45,2
+PORT_MAP,15,29,50,50,100,100,0,650,55,0
+PORT_MAP,15,30,50,50,60,60,0,450,65,1
+PORT_MAP,16,31,45,45,100,100,0,3000,75,2
+PORT_MAP,16,32,55,55,80,80,10,3500,85,0
+PORT_MAP,17,33,50,50,100,100,0,4000,95,1
+PORT_MAP,17,34,40,40,90,90,15,5000,10,2
+PORT_MAP,18,35,60,60,95,95,-5,100,20,0
+PORT_MAP,18,36,50,50,75,75,0,200,30,1
+PORT_MAP,19,1,45,45,100,100,0,2000,40,2
+PORT_MAP,19,2,55,55,80,80,10,2200,50,0
+PORT_MAP,20,3,40,40,90,90,15,2500,60,1
+PORT_MAP,20,4,60,60,95,95,-5,2300,70,2
+PORT_MAP,21,5,50,50,100,100,0,1500,80,0
+PORT_MAP,21,6,50,50,80,80,20,1700,90,1
+PORT_MAP,22,7,30,30,100,100,0,1900,5,2
+PORT_MAP,22,8,70,70,50,50,0,1100,15,0
+PORT_MAP,23,9,50,50,100,100,0,1300,25,1
+PORT_MAP,23,10,30,30,70,70,-10,900,35,2
+PORT_MAP,24,11,40,40,100,100,0,700,45,0
+PORT_MAP,24,12,60,60,90,90,5,500,55,1
+PORT_MAP,25,13,50,50,100,100,0,0,65,2
+PORT_MAP,25,14,50,50,60,60,0,0,75,0
+PORT_MAP,26,15,45,45,100,100,0,0,85,1
+PORT_MAP,26,16,55,55,80,80,10,0,95,2
+PORT_MAP,27,17,50,50,100,100,0,0,10,0
+PORT_MAP,27,18,40,40,90,90,15,0,20,1
+PORT_MAP,28,19,60,60,95,95,-5,0,30,2
+PORT_MAP,28,20,50,50,75,75,0,0,40,0
+PORT_MAP,29,21,45,45,100,100,0,0,50,1
+PORT_MAP,29,22,55,55,80,80,10,0,60,2
+PORT_MAP,30,23,40,40,90,90,15,0,70,0
+PORT_MAP,30,24,60,60,95,95,-5,0,80,1
+PORT_MAP,31,25,50,50,100,100,0,0,90,2
+PORT_MAP,31,26,50,50,80,80,20,0,100,0
+PORT_MAP,32,27,30,30,100,100,0,0,50,1
+PORT_MAP,32,28,70,70,50,50,0,0,50,2
+PORT_MAP,33,29,50,50,100,100,0,0,50,0
+PORT_MAP,33,30,30,30,70,70,-10,0,50,1
+PORT_MAP,34,31,40,40,100,100,0,0,50,2
+PORT_MAP,34,32,60,60,90,90,5,0,50,0
+PORT_MAP,35,33,50,50,100,100,0,0,0,1
+PORT_MAP,35,34,50,50,60,60,0,0,0,2
+PORT_MAP,36,35,45,45,100,100,0,0,0,0
+PORT_MAP,36,36,55,55,80,80,10,0,0,1
+PORT_MAP,37,1,50,50,100,100,0,3000,0,2
+PORT_MAP,37,2,40,40,90,90,15,4000,0,0
+PORT_MAP,38,3,60,60,95,95,-5,5000,0,1
+PORT_MAP,38,4,50,50,75,75,0,0,100,2
+PORT_MAP,39,5,45,45,100,100,0,0,100,0
+PORT_MAP,39,6,55,55,80,80,10,0,100,1
+PORT_MAP,40,7,40,40,90,90,15,10000,0,2
+PORT_MAP,40,8,60,60,95,95,-5,0,100,0`;
+            showMessage('已加载复杂CSV模板', 'info');
+            calculateHash(normalizeCSV(csvTextarea.value)).then(hash => {
+                csvHash.textContent = hash;
+            });
+        });
+        
+        // 监听CSV内容变化，清除旧的哈希值
+        csvTextarea.addEventListener('input', () => {
+            csvHash.textContent = '-';
+        });
+        
+        convertedCSV.addEventListener('input', () => {
+            convertedCsvHash.textContent = '-';
+            hashCompareResult.style.display = 'none';
+        });
+        
+        // 页面加载时默认显示简单模板
+        document.addEventListener('DOMContentLoaded', () => {
+            // 将"比较哈希值"按钮文本改为"比较数据"
+            const compareHashesBtn = document.getElementById('compareHashes');
+            if (compareHashesBtn) {
+                compareHashesBtn.textContent = '比较数据';
+            }
+
+            // 默认显示简单模板
+            simpleTemplateBtn.click();
+            
+            // 延迟显示功能信息
+            setTimeout(showProgramFeatures, 2000);
+        });
+        
+        // 添加关于新参数功能的解释文本
+        function showProgramFeatures() {
+            showMessage('通道计算器支持延迟和速度控制，映射模式设置，以及线性输入参数配置', 'info');
+            setTimeout(() => {
+                showMessage('映射模式可选择相加(0)、相乘(1)或替代(2)，为每个输入配置不同的计算方式', 'info');
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 

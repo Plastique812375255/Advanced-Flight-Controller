@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFC 通道计算器 - 映射模式与启用标志测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            margin-bottom: 10px;
+            font-family: monospace;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .gear-display {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .gear {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .gear.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .toggle-button {
+            margin-bottom: 10px;
+        }
+        .info-message {
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-left: 5px solid #4CAF50;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AFC 通道计算器 - 映射模式与启用标志测试</h1>
+        
+        <div class="section">
+            <h2>测试文件加载</h2>
+            <button id="loadTestFile">加载测试文件</button>
+            <button id="parseCSVBtn">解析CSV数据</button>
+            <div class="info-message">
+                加载测试文件后，可以查看不同映射模式和启用标志的效果
+            </div>
+            <textarea id="csvTextarea" placeholder="CSV数据将显示在这里..."></textarea>
+        </div>
+
+        <div class="section">
+            <h2>映射模式与启用标志分析</h2>
+            <div class="result" id="modeAnalysisResult">
+                <p>解析结果将显示在这里...</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>档位启用状态可视化</h2>
+            <div class="info-message">
+                选择一个映射，查看其在各个档位的启用状态
+            </div>
+            <select id="mappingSelect" disabled>
+                <option value="">-- 请先解析CSV数据 --</option>
+            </select>
+            <div class="gear-display" id="gearDisplay"></div>
+        </div>
+
+        <div class="section">
+            <h2>模式特性测试</h2>
+            <div class="toggle-button">
+                <label>测试档位：</label>
+                <select id="gearSelect" disabled>
+                    <option value="1">档位 1</option>
+                    <option value="2">档位 2</option>
+                    <option value="3">档位 3</option>
+                    <option value="4">档位 4</option>
+                    <option value="5">档位 5</option>
+                    <option value="6">档位 6</option>
+                    <option value="7">档位 7</option>
+                    <option value="8">档位 8</option>
+                    <option value="9">档位 9</option>
+                    <option value="10">档位 10</option>
+                    <option value="11">档位 11</option>
+                    <option value="12">档位 12</option>
+                    <option value="13">档位 13</option>
+                    <option value="14">档位 14</option>
+                    <option value="15">档位 15</option>
+                    <option value="16">档位 16</option>
+                </select>
+                <button id="simulateBtn" disabled>模拟输出</button>
+            </div>
+            <table id="simulationTable">
+                <thead>
+                    <tr>
+                        <th>接口ID</th>
+                        <th>输入ID</th>
+                        <th>输入值</th>
+                        <th>映射模式</th>
+                        <th>原始输出</th>
+                        <th>最终输出</th>
+                        <th>启用状态</th>
+                    </tr>
+                </thead>
+                <tbody id="simulationBody">
+                    <tr>
+                        <td colspan="7">请先解析CSV数据并选择档位</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 常量定义
+            const MAP_MODE_ADD = 0;
+            const MAP_MODE_MULTIPLY = 1;
+            const MAP_MODE_REPLACE = 2;
+
+            // DOM元素
+            const csvTextarea = document.getElementById('csvTextarea');
+            const loadTestFileBtn = document.getElementById('loadTestFile');
+            const parseCSVBtn = document.getElementById('parseCSVBtn');
+            const modeAnalysisResult = document.getElementById('modeAnalysisResult');
+            const mappingSelect = document.getElementById('mappingSelect');
+            const gearDisplay = document.getElementById('gearDisplay');
+            const gearSelect = document.getElementById('gearSelect');
+            const simulateBtn = document.getElementById('simulateBtn');
+            const simulationBody = document.getElementById('simulationBody');
+
+            // 数据存储
+            let parsedData = null;
+
+            // 加载测试文件
+            loadTestFileBtn.addEventListener('click', function() {
+                fetch('test_modes.csv')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('无法加载测试文件');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        csvTextarea.value = data;
+                        showInfoMessage('测试文件已成功加载');
+                    })
+                    .catch(error => {
+                        showInfoMessage('错误：' + error.message, true);
+                    });
+            });
+
+            // 解析CSV数据
+            parseCSVBtn.addEventListener('click', function() {
+                try {
+                    parsedData = parseCSV(csvTextarea.value);
+                    analyzeMapModes(parsedData);
+                    populateMappingSelect(parsedData);
+                    gearSelect.disabled = false;
+                    simulateBtn.disabled = false;
+                    mappingSelect.disabled = false;
+                    
+                    showInfoMessage('CSV数据解析成功');
+                } catch (error) {
+                    showInfoMessage('解析错误：' + error.message, true);
+                }
+            });
+
+            // 映射选择变更
+            mappingSelect.addEventListener('change', function() {
+                if (parsedData && this.value) {
+                    const selectedMapping = this.value.split('-');
+                    const portId = parseInt(selectedMapping[0]);
+                    const inputId = parseInt(selectedMapping[1]);
+                    
+                    // 找到对应的映射
+                    const mapping = parsedData.portMaps.find(m => 
+                        m.portId === portId && m.inputId === inputId);
+                    
+                    if (mapping) {
+                        displayGearStatus(mapping.enableFlags);
+                    }
+                }
+            });
+
+            // 模拟按钮点击
+            simulateBtn.addEventListener('click', function() {
+                if (parsedData) {
+                    const selectedGear = parseInt(gearSelect.value);
+                    simulateOutputs(parsedData, selectedGear);
+                }
+            });
+
+            // 解析CSV数据
+            function parseCSV(csvText) {
+                const lines = csvText.split('\n');
+                const result = {
+                    modelInfo: null,
+                    portCount: 0,
+                    portParams: [],
+                    inputParams: [],
+                    portMaps: []
+                };
+
+                lines.forEach(line => {
+                    line = line.trim();
+                    // 跳过注释和空行
+                    if (line.startsWith('#') || line === '') {
+                        return;
+                    }
+
+                    const parts = line.split(',');
+                    const recordType = parts[0];
+
+                    switch (recordType) {
+                        case 'MODEL_INFO':
+                            result.modelInfo = {
+                                name: parts[1],
+                                id: parts[2],
+                                gearCount: parseInt(parts[3])
+                            };
+                            break;
+                        case 'PORT_COUNT':
+                            result.portCount = parseInt(parts[1]);
+                            break;
+                        case 'PORT_PARAM':
+                            result.portParams.push({
+                                portId: parseInt(parts[1]),
+                                type: parseInt(parts[2]),
+                                max: parseInt(parts[3]),
+                                min: parseInt(parts[4]),
+                                center: parts.length > 5 ? parseInt(parts[5]) : null
+                            });
+                            break;
+                        case 'INPUT_PARAM':
+                            result.inputParams.push({
+                                inputId: parseInt(parts[1]),
+                                exp: parseInt(parts[2]),
+                                travelUp: parseInt(parts[3]),
+                                travelDown: parseInt(parts[4]),
+                                center: parseInt(parts[5]),
+                                offset: parseInt(parts[6])
+                            });
+                            break;
+                        case 'PORT_MAP':
+                            // 解析启用标志
+                            const enableFlagsHex = parts[10];
+                            const enableFlags = parseInt(enableFlagsHex, 16);
+                            
+                            result.portMaps.push({
+                                portId: parseInt(parts[1]),
+                                inputId: parseInt(parts[2]),
+                                dir1Exp: parseInt(parts[3]),
+                                dir2Exp: parseInt(parts[4]),
+                                dir1Amount: parseInt(parts[5]),
+                                dir2Amount: parseInt(parts[6]),
+                                offset: parseInt(parts[7]),
+                                delay: parseInt(parts[8]),
+                                speed: parseInt(parts[9]),
+                                mode: parseInt(parts[10]),
+                                enableFlagsHex: parts[11],
+                                enableFlags: parseInt(parts[11], 16)
+                            });
+                            break;
+                    }
+                });
+
+                return result;
+            }
+
+            // 分析映射模式
+            function analyzeMapModes(data) {
+                if (!data || !data.portMaps || data.portMaps.length === 0) {
+                    modeAnalysisResult.innerHTML = '<p>无数据可分析</p>';
+                    return;
+                }
+
+                let html = '<h3>映射模式分析结果</h3>';
+                
+                // 统计不同映射模式的数量
+                const modeCount = {
+                    [MAP_MODE_ADD]: 0,
+                    [MAP_MODE_MULTIPLY]: 0,
+                    [MAP_MODE_REPLACE]: 0
+                };
+                
+                data.portMaps.forEach(map => {
+                    if (map.mode === MAP_MODE_ADD) modeCount[MAP_MODE_ADD]++;
+                    else if (map.mode === MAP_MODE_MULTIPLY) modeCount[MAP_MODE_MULTIPLY]++;
+                    else if (map.mode === MAP_MODE_REPLACE) modeCount[MAP_MODE_REPLACE]++;
+                });
+                
+                html += '<p>映射模式统计：</p>';
+                html += '<ul>';
+                html += `<li>相加模式 (模式0)：${modeCount[MAP_MODE_ADD]} 个映射</li>`;
+                html += `<li>相乘模式 (模式1)：${modeCount[MAP_MODE_MULTIPLY]} 个映射</li>`;
+                html += `<li>替代模式 (模式2)：${modeCount[MAP_MODE_REPLACE]} 个映射</li>`;
+                html += '</ul>';
+                
+                // 启用标志分析
+                html += '<p>启用标志分析：</p>';
+                html += '<ul>';
+                
+                const fullEnabled = data.portMaps.filter(map => map.enableFlags === 0xFFFF).length;
+                const partialEnabled = data.portMaps.filter(map => map.enableFlags !== 0xFFFF && map.enableFlags !== 0).length;
+                const customPatterns = new Set(data.portMaps.map(map => map.enableFlagsHex)).size;
+                
+                html += `<li>全部档位启用 (FFFF)：${fullEnabled} 个映射</li>`;
+                html += `<li>部分档位启用：${partialEnabled} 个映射</li>`;
+                html += `<li>不同启用模式数量：${customPatterns} 种</li>`;
+                html += '</ul>';
+                
+                // 接口映射分析
+                html += '<p>接口映射分析：</p>';
+                html += '<table>';
+                html += '<tr><th>接口ID</th><th>映射数量</th><th>使用的映射模式</th><th>覆盖档位</th></tr>';
+                
+                // 按接口ID分组
+                const portGroups = {};
+                data.portMaps.forEach(map => {
+                    if (!portGroups[map.portId]) {
+                        portGroups[map.portId] = [];
+                    }
+                    portGroups[map.portId].push(map);
+                });
+                
+                // 生成表格行
+                Object.keys(portGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(portId => {
+                    const maps = portGroups[portId];
+                    const modes = new Set(maps.map(m => m.mode));
+                    const modesText = Array.from(modes).map(mode => {
+                        if (mode === MAP_MODE_ADD) return '相加';
+                        if (mode === MAP_MODE_MULTIPLY) return '相乘';
+                        if (mode === MAP_MODE_REPLACE) return '替代';
+                        return '未知';
+                    }).join(', ');
+                    
+                    // 计算覆盖的档位
+                    let combinedFlags = 0;
+                    maps.forEach(map => {
+                        combinedFlags |= map.enableFlags;
+                    });
+                    const coverage = (combinedFlags === 0xFFFF) ? '全部' : 
+                                    (combinedFlags === 0) ? '无' : 
+                                    '部分 (' + (combinedFlags.toString(16).toUpperCase().padStart(4, '0')) + ')';
+                    
+                    html += `<tr>
+                        <td>${portId}</td>
+                        <td>${maps.length}</td>
+                        <td>${modesText}</td>
+                        <td>${coverage}</td>
+                    </tr>`;
+                });
+                
+                html += '</table>';
+                
+                modeAnalysisResult.innerHTML = html;
+            }
+
+            // 填充映射选择下拉框
+            function populateMappingSelect(data) {
+                mappingSelect.innerHTML = '';
+                
+                if (!data || !data.portMaps || data.portMaps.length === 0) {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = '-- 无可用映射 --';
+                    mappingSelect.appendChild(option);
+                    return;
+                }
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = '-- 选择映射 --';
+                mappingSelect.appendChild(defaultOption);
+                
+                data.portMaps.forEach(map => {
+                    const option = document.createElement('option');
+                    option.value = `${map.portId}-${map.inputId}`;
+                    
+                    let modeText = '';
+                    if (map.mode === MAP_MODE_ADD) modeText = '相加';
+                    else if (map.mode === MAP_MODE_MULTIPLY) modeText = '相乘';
+                    else if (map.mode === MAP_MODE_REPLACE) modeText = '替代';
+                    
+                    option.textContent = `接口 ${map.portId} - 输入 ${map.inputId} (${modeText} 模式)`;
+                    mappingSelect.appendChild(option);
+                });
+            }
+
+            // 显示档位状态
+            function displayGearStatus(enableFlags) {
+                gearDisplay.innerHTML = '';
+                
+                for (let i = 0; i < 16; i++) {
+                    const gearNumber = i + 1;
+                    const isEnabled = (enableFlags & (1 << i)) !== 0;
+                    
+                    const gearDiv = document.createElement('div');
+                    gearDiv.className = `gear ${isEnabled ? 'active' : ''}`;
+                    gearDiv.textContent = gearNumber;
+                    
+                    gearDisplay.appendChild(gearDiv);
+                }
+            }
+
+            // 模拟输出
+            function simulateOutputs(data, selectedGear) {
+                if (!data || !data.portMaps || data.portMaps.length === 0) {
+                    simulationBody.innerHTML = '<tr><td colspan="7">无数据可模拟</td></tr>';
+                    return;
+                }
+                
+                // 清空表格
+                simulationBody.innerHTML = '';
+                
+                // 计算每个接口的最终输出
+                const portOutputs = {};
+                
+                // 初始化每个接口的输出
+                data.portParams.forEach(param => {
+                    portOutputs[param.portId] = {
+                        value: 0,
+                        contributions: []
+                    };
+                });
+                
+                // 为每个映射计算输出
+                data.portMaps.forEach(map => {
+                    // 检查该档位是否启用
+                    const isEnabled = (map.enableFlags & (1 << (selectedGear - 1))) !== 0;
+                    if (!isEnabled) {
+                        // 如果未启用，也添加到贡献列表中，但标记为未启用
+                        portOutputs[map.portId].contributions.push({
+                            inputId: map.inputId,
+                            value: 0,
+                            mode: map.mode,
+                            isEnabled: false
+                        });
+                        return;
+                    }
+                    
+                    // 找到对应的输入参数
+                    const input = data.inputParams.find(i => i.inputId === map.inputId);
+                    if (!input) return;
+                    
+                    // 模拟输入值 (简化为线性映射在-1000到1000之间)
+                    const inputValue = 500; // 假设输入值为正向中等量
+                    
+                    // 计算输出值 (简化计算)
+                    let outputValue;
+                    if (inputValue >= 0) {
+                        outputValue = inputValue * (map.dir1Amount / 100);
+                    } else {
+                        outputValue = inputValue * (map.dir2Amount / 100);
+                    }
+                    
+                    // 根据映射模式应用到最终输出
+                    switch (map.mode) {
+                        case MAP_MODE_ADD:
+                            portOutputs[map.portId].value += outputValue;
+                            break;
+                        case MAP_MODE_MULTIPLY:
+                            // 如果是第一个贡献，设置初始值，否则相乘
+                            if (portOutputs[map.portId].contributions.length === 0 ||
+                                !portOutputs[map.portId].contributions.some(c => c.isEnabled)) {
+                                portOutputs[map.portId].value = outputValue;
+                            } else {
+                                portOutputs[map.portId].value *= (outputValue / 100);
+                            }
+                            break;
+                        case MAP_MODE_REPLACE:
+                            portOutputs[map.portId].value = outputValue;
+                            break;
+                    }
+                    
+                    // 添加到贡献列表
+                    portOutputs[map.portId].contributions.push({
+                        inputId: map.inputId,
+                        value: outputValue,
+                        mode: map.mode,
+                        isEnabled: true
+                    });
+                });
+                
+                // 填充表格
+                Object.keys(portOutputs).forEach(portId => {
+                    const output = portOutputs[portId];
+                    
+                    if (output.contributions.length === 0) {
+                        // 没有映射的接口
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${portId}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0</td>
+                            <td>未使用</td>
+                        `;
+                        simulationBody.appendChild(row);
+                    } else {
+                        // 有映射的接口
+                        output.contributions.forEach((contrib, index) => {
+                            const row = document.createElement('tr');
+                            let modeText = '';
+                            if (contrib.mode === MAP_MODE_ADD) modeText = '相加';
+                            else if (contrib.mode === MAP_MODE_MULTIPLY) modeText = '相乘';
+                            else if (contrib.mode === MAP_MODE_REPLACE) modeText = '替代';
+                            
+                            row.innerHTML = `
+                                <td>${portId}</td>
+                                <td>${contrib.inputId}</td>
+                                <td>500</td>
+                                <td>${modeText}</td>
+                                <td>${contrib.value.toFixed(2)}</td>
+                                <td>${index === output.contributions.length - 1 ? output.value.toFixed(2) : '-'}</td>
+                                <td>${contrib.isEnabled ? '启用' : '禁用'}</td>
+                            `;
+                            simulationBody.appendChild(row);
+                        });
+                    }
+                });
+            }
+
+            // 显示信息消息
+            function showInfoMessage(message, isError = false) {
+                const infoElement = document.createElement('div');
+                infoElement.className = 'info-message';
+                infoElement.style.backgroundColor = isError ? '#ffebee' : '#e8f5e9';
+                infoElement.style.borderLeftColor = isError ? '#f44336' : '#4CAF50';
+                infoElement.textContent = message;
+                
+                const container = document.querySelector('.container');
+                container.insertBefore(infoElement, container.firstChild);
+                
+                // 5秒后自动消失
+                setTimeout(() => {
+                    infoElement.style.opacity = '0';
+                    infoElement.style.transition = 'opacity 0.5s';
+                    setTimeout(() => {
+                        infoElement.remove();
+                    }, 500);
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html> 

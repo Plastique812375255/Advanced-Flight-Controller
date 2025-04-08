@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFC 通道计算器 - 二进制转换工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            font-family: Consolas, monospace;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info {
+            color: #0066cc;
+            margin: 10px 0;
+        }
+        .warning {
+            color: #ff6600;
+            margin: 10px 0;
+        }
+        .error {
+            color: #cc0000;
+            margin: 10px 0;
+        }
+        .result-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .result-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AFC 通道计算器 - 二进制转换工具</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="converter">转换工具</div>
+            <div class="tab" data-tab="help">帮助文档</div>
+            <div class="tab" data-tab="examples">示例</div>
+        </div>
+        
+        <div class="tab-content active" id="converter">
+            <div class="section">
+                <h2>CSV 转 二进制</h2>
+                <textarea id="csvInput" placeholder="请输入CSV格式内容..."></textarea>
+                <div class="info" id="csvInfo"></div>
+                <button id="loadTestFileBtn">加载测试文件</button>
+                <button id="csv2BinaryBtn">转换为二进制</button>
+                <button id="downloadBinaryBtn" disabled>下载二进制文件</button>
+            </div>
+            
+            <div class="section">
+                <h2>二进制 转 CSV</h2>
+                <div>
+                    <input type="file" id="binaryFileInput" accept=".bin,.dat">
+                    <button id="binary2CsvBtn" disabled>转换为CSV</button>
+                </div>
+                <textarea id="csvOutput" placeholder="二进制转换后的CSV内容将显示在这里..." readonly></textarea>
+                <div class="info" id="binaryInfo"></div>
+                <button id="downloadCsvBtn" disabled>下载CSV文件</button>
+            </div>
+            
+            <div class="section">
+                <h2>数据比较</h2>
+                <button id="compareBtn" disabled>比较原始CSV和转换后的CSV</button>
+                <div class="result-area">
+                    <div class="result-box">
+                        <h3>映射模式统计</h3>
+                        <textarea id="modeComparison" readonly rows="6"></textarea>
+                    </div>
+                    <div class="result-box">
+                        <h3>启用状态统计</h3>
+                        <textarea id="enableFlagsComparison" readonly rows="6"></textarea>
+                    </div>
+                </div>
+                <div class="info" id="comparisonResult"></div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="help">
+            <div class="section">
+                <h2>CSV 格式说明</h2>
+                <p>CSV 文件格式要求如下：</p>
+                <table>
+                    <tr>
+                        <th>记录类型</th>
+                        <th>格式</th>
+                        <th>说明</th>
+                    </tr>
+                    <tr>
+                        <td>模型信息</td>
+                        <td>MODEL_INFO,&lt;模型名称&gt;,&lt;模型ID&gt;,&lt;档位数量&gt;</td>
+                        <td>
+                            <ul>
+                                <li>模型名称：最多15个字符</li>
+                                <li>模型ID：整数</li>
+                                <li>档位数量：1-16之间的整数</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>接口数量</td>
+                        <td>PORT_COUNT,&lt;数量&gt;</td>
+                        <td>接口数量：1-255之间的整数</td>
+                    </tr>
+                    <tr>
+                        <td>接口参数</td>
+                        <td>PORT_PARAM,&lt;接口ID&gt;,&lt;类型&gt;,&lt;最大值&gt;,&lt;最小值&gt;[,&lt;中位值&gt;]</td>
+                        <td>
+                            <ul>
+                                <li>接口ID：1-255之间的整数</li>
+                                <li>类型：0(NST)或1(ST)</li>
+                                <li>最大值、最小值：整数</li>
+                                <li>中位值：仅ST类型需要</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>线性输入参数</td>
+                        <td>INPUT_PARAM,&lt;输入ID&gt;,&lt;EXP&gt;,&lt;行程上&gt;,&lt;行程下&gt;,&lt;中位点&gt;,&lt;偏移&gt;</td>
+                        <td>
+                            <ul>
+                                <li>输入ID：1-20之间的整数</li>
+                                <li>EXP：-100到100之间的整数</li>
+                                <li>行程上/下：0到200之间的整数</li>
+                                <li>中位点/偏移：-100到100之间的整数</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>映射表</td>
+                        <td>PORT_MAP,&lt;接口ID&gt;,&lt;输入ID&gt;,&lt;方向1EXP&gt;,&lt;方向2EXP&gt;,&lt;方向1舵量&gt;,&lt;方向2舵量&gt;,&lt;偏移量&gt;,&lt;延迟&gt;,&lt;速度&gt;,&lt;映射模式&gt;,&lt;启用标志&gt;</td>
+                        <td>
+                            <ul>
+                                <li>接口ID：已定义的接口ID</li>
+                                <li>输入ID：1-20之间的整数</li>
+                                <li>方向EXP：0-100之间的整数</li>
+                                <li>方向舵量：0-100之间的整数</li>
+                                <li>偏移量：-100到100之间的整数</li>
+                                <li>延迟：0-255之间的整数</li>
+                                <li>速度：0-100之间的整数</li>
+                                <li>映射模式：0(相加)/1(相乘)/2(替代)</li>
+                                <li>启用标志：16进制表示的16位标志(FFFF=全部档位启用)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>功能说明</h2>
+                <h3>映射模式</h3>
+                <p>三种映射模式的作用：</p>
+                <ul>
+                    <li><strong>相加模式(0)</strong>：将输入值相加到输出通道。适用于多个输入共同控制一个通道的情况。</li>
+                    <li><strong>相乘模式(1)</strong>：将输入值与输出通道相乘。适用于创建比例控制或调制效果。</li>
+                    <li><strong>替代模式(2)</strong>：输入值直接替代输出通道的值。适用于在特定条件下完全控制通道。</li>
+                </ul>
+                
+                <h3>启用标志</h3>
+                <p>启用标志用16位二进制数表示（以16进制格式写入），每一位对应一个档位：</p>
+                <ul>
+                    <li>值为1表示在该档位启用此映射</li>
+                    <li>值为0表示在该档位禁用此映射</li>
+                    <li>例如：FFFF=所有档位启用，0001=仅第1档启用，8080=第8和第16档启用</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="examples">
+            <div class="section">
+                <h2>示例说明</h2>
+                <p>加载测试文件按钮会加载一个包含各种映射模式和启用标志示例的CSV文件。</p>
+                <p>该示例文件包含：</p>
+                <ul>
+                    <li>具有16个档位的模型设置</li>
+                    <li>10个接口参数定义</li>
+                    <li>5个线性输入参数设置</li>
+                    <li>10个映射关系，展示不同的映射模式和启用标志组合</li>
+                </ul>
+                
+                <h3>示例映射模式的使用场景</h3>
+                <p><strong>相加模式(0)的应用场景：</strong></p>
+                <ul>
+                    <li>同时使用多个输入控制一个舵机（如副翼混控到升降舵）</li>
+                    <li>在基础舵量上增加微调</li>
+                    <li>实现多重混控效果</li>
+                </ul>
+                
+                <p><strong>相乘模式(1)的应用场景：</strong></p>
+                <ul>
+                    <li>实现双比例控制（一个通道控制另一个通道的敏感度）</li>
+                    <li>根据飞行状态动态调整舵量</li>
+                    <li>实现平滑的过渡效果</li>
+                </ul>
+                
+                <p><strong>替代模式(2)的应用场景：</strong></p>
+                <ul>
+                    <li>在特定档位完全改变控制方式</li>
+                    <li>实现自动控制模式</li>
+                    <li>紧急控制覆盖</li>
+                </ul>
+                
+                <h3>启用标志使用示例</h3>
+                <table>
+                    <tr>
+                        <th>启用标志(16进制)</th>
+                        <th>二进制表示</th>
+                        <th>启用的档位</th>
+                        <th>应用场景</th>
+                    </tr>
+                    <tr>
+                        <td>FFFF</td>
+                        <td>1111 1111 1111 1111</td>
+                        <td>所有档位</td>
+                        <td>在所有飞行模式下都启用的基本控制</td>
+                    </tr>
+                    <tr>
+                        <td>5555</td>
+                        <td>0101 0101 0101 0101</td>
+                        <td>1,3,5,7,9,11,13,15</td>
+                        <td>在奇数档位启用的特殊控制</td>
+                    </tr>
+                    <tr>
+                        <td>AAAA</td>
+                        <td>1010 1010 1010 1010</td>
+                        <td>2,4,6,8,10,12,14,16</td>
+                        <td>在偶数档位启用的特殊控制</td>
+                    </tr>
+                    <tr>
+                        <td>00FF</td>
+                        <td>0000 0000 1111 1111</td>
+                        <td>1-8</td>
+                        <td>在低档位启用的控制</td>
+                    </tr>
+                    <tr>
+                        <td>FF00</td>
+                        <td>1111 1111 0000 0000</td>
+                        <td>9-16</td>
+                        <td>在高档位启用的控制</td>
+                    </tr>
+                    <tr>
+                        <td>0001</td>
+                        <td>0000 0000 0000 0001</td>
+                        <td>仅1档</td>
+                        <td>仅在特定模式下启用的功能</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="csvToBinary.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const csvInput = document.getElementById('csvInput');
+            const csvOutput = document.getElementById('csvOutput');
+            const csvInfo = document.getElementById('csvInfo');
+            const binaryInfo = document.getElementById('binaryInfo');
+            const comparisonResult = document.getElementById('comparisonResult');
+            const modeComparison = document.getElementById('modeComparison');
+            const enableFlagsComparison = document.getElementById('enableFlagsComparison');
+            
+            // 按钮元素
+            const loadTestFileBtn = document.getElementById('loadTestFileBtn');
+            const csv2BinaryBtn = document.getElementById('csv2BinaryBtn');
+            const binary2CsvBtn = document.getElementById('binary2CsvBtn');
+            const downloadBinaryBtn = document.getElementById('downloadBinaryBtn');
+            const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+            const compareBtn = document.getElementById('compareBtn');
+            
+            // 文件输入元素
+            const binaryFileInput = document.getElementById('binaryFileInput');
+            
+            // 标签页切换功能
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有激活标签
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // 激活当前标签
+                    this.classList.add('active');
+                    
+                    // 获取标签ID
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // 隐藏所有内容
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // 显示当前内容
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 二进制数据存储
+            let binaryData = null;
+            let originalCsvText = null;
+            
+            // 加载测试文件
+            loadTestFileBtn.addEventListener('click', async function() {
+                try {
+                    const response = await fetch('test_modes.csv');
+                    const text = await response.text();
+                    csvInput.value = text;
+                    originalCsvText = text;
+                    csvInfo.textContent = '测试文件已加载';
+                    csvInfo.className = 'info';
+                } catch (error) {
+                    csvInfo.textContent = '加载测试文件失败: ' + error.message;
+                    csvInfo.className = 'error';
+                }
+            });
+            
+            // CSV转二进制
+            csv2BinaryBtn.addEventListener('click', function() {
+                try {
+                    const csvText = csvInput.value;
+                    if (!csvText.trim()) {
+                        csvInfo.textContent = '请输入CSV内容';
+                        csvInfo.className = 'warning';
+                        return;
+                    }
+                    
+                    originalCsvText = csvText;
+                    const result = parseCSV(csvText);
+                    binaryData = convertToBinary(result);
+                    
+                    const stats = {
+                        portCount: result.portCount,
+                        portParams: result.portParams.length,
+                        inputParams: result.inputParams ? result.inputParams.length : 0,
+                        mappings: result.mappings.length,
+                        modelName: result.modelName,
+                        modelId: result.modelId,
+                        gearCount: result.gearCount
+                    };
+                    
+                    csvInfo.textContent = `转换成功! 大小: ${binaryData.length} 字节, 接口数: ${stats.portCount}, 接口参数: ${stats.portParams}, 线性输入参数: ${stats.inputParams}, 映射: ${stats.mappings}, 档位数: ${stats.gearCount}`;
+                    csvInfo.className = 'info';
+                    
+                    downloadBinaryBtn.disabled = false;
+                    
+                    // 自动进行二进制到CSV的转换
+                    try {
+                        const convertedCsv = binaryToCSV(binaryData);
+                        csvOutput.value = convertedCsv;
+                        binaryInfo.textContent = '自动转换成功!';
+                        binaryInfo.className = 'info';
+                        downloadCsvBtn.disabled = false;
+                        compareBtn.disabled = false;
+                    } catch (error) {
+                        binaryInfo.textContent = '自动转换失败: ' + error.message;
+                        binaryInfo.className = 'error';
+                    }
+                } catch (error) {
+                    csvInfo.textContent = '转换失败: ' + error.message;
+                    csvInfo.className = 'error';
+                    downloadBinaryBtn.disabled = true;
+                }
+            });
+            
+            // 二进制文件加载
+            binaryFileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    binaryData = new Uint8Array(e.target.result);
+                    binary2CsvBtn.disabled = false;
+                    binaryInfo.textContent = `二进制文件已加载，大小: ${binaryData.length} 字节`;
+                    binaryInfo.className = 'info';
+                };
+                reader.onerror = function() {
+                    binaryInfo.textContent = '文件读取失败';
+                    binaryInfo.className = 'error';
+                    binary2CsvBtn.disabled = true;
+                };
+                reader.readAsArrayBuffer(file);
+            });
+            
+            // 二进制转CSV
+            binary2CsvBtn.addEventListener('click', function() {
+                if (!binaryData) {
+                    binaryInfo.textContent = '请先加载二进制文件';
+                    binaryInfo.className = 'warning';
+                    return;
+                }
+                
+                try {
+                    const convertedCsv = binaryToCSV(binaryData);
+                    csvOutput.value = convertedCsv;
+                    binaryInfo.textContent = '转换成功!';
+                    binaryInfo.className = 'info';
+                    downloadCsvBtn.disabled = false;
+                    
+                    if (originalCsvText) {
+                        compareBtn.disabled = false;
+                    }
+                } catch (error) {
+                    binaryInfo.textContent = '转换失败: ' + error.message;
+                    binaryInfo.className = 'error';
+                    csvOutput.value = '';
+                    downloadCsvBtn.disabled = true;
+                    compareBtn.disabled = true;
+                }
+            });
+            
+            // 下载二进制文件
+            downloadBinaryBtn.addEventListener('click', function() {
+                if (!binaryData) return;
+                
+                const blob = new Blob([binaryData], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'output.bin';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            
+            // 下载CSV文件
+            downloadCsvBtn.addEventListener('click', function() {
+                if (!csvOutput.value) return;
+                
+                const blob = new Blob([csvOutput.value], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'output.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            
+            // 比较原始CSV和转换后的CSV
+            compareBtn.addEventListener('click', function() {
+                if (!originalCsvText || !csvOutput.value) {
+                    comparisonResult.textContent = '请先完成CSV转二进制和二进制转CSV的过程';
+                    comparisonResult.className = 'warning';
+                    return;
+                }
+                
+                // 解析原始CSV和转换后的CSV
+                try {
+                    const originalData = parseCSV(originalCsvText);
+                    const convertedData = parseCSV(csvOutput.value);
+                    
+                    // 比较结果
+                    let identical = true;
+                    let differences = [];
+                    
+                    // 比较模型信息
+                    if (originalData.modelName !== convertedData.modelName) {
+                        differences.push(`模型名称不同: "${originalData.modelName}" vs "${convertedData.modelName}"`);
+                        identical = false;
+                    }
+                    
+                    if (originalData.modelId !== convertedData.modelId) {
+                        differences.push(`模型ID不同: ${originalData.modelId} vs ${convertedData.modelId}`);
+                        identical = false;
+                    }
+                    
+                    if (originalData.gearCount !== convertedData.gearCount) {
+                        differences.push(`档位数量不同: ${originalData.gearCount} vs ${convertedData.gearCount}`);
+                        identical = false;
+                    }
+                    
+                    // 比较接口数量
+                    if (originalData.portCount !== convertedData.portCount) {
+                        differences.push(`接口数量不同: ${originalData.portCount} vs ${convertedData.portCount}`);
+                        identical = false;
+                    }
+                    
+                    // 映射模式统计
+                    const modeStats = {
+                        original: { 0: 0, 1: 0, 2: 0 },
+                        converted: { 0: 0, 1: 0, 2: 0 }
+                    };
+                    
+                    // 启用标志统计
+                    const enableFlagsStats = {
+                        original: {},
+                        converted: {}
+                    };
+                    
+                    // 分析原始数据的映射模式和启用标志
+                    originalData.mappings.forEach(mapping => {
+                        const mode = mapping.mode;
+                        const flags = mapping.enableFlags;
+                        
+                        modeStats.original[mode] = (modeStats.original[mode] || 0) + 1;
+                        enableFlagsStats.original[flags] = (enableFlagsStats.original[flags] || 0) + 1;
+                    });
+                    
+                    // 分析转换后数据的映射模式和启用标志
+                    convertedData.mappings.forEach(mapping => {
+                        const mode = mapping.mode;
+                        const flags = mapping.enableFlags;
+                        
+                        modeStats.converted[mode] = (modeStats.converted[mode] || 0) + 1;
+                        enableFlagsStats.converted[flags] = (enableFlagsStats.converted[flags] || 0) + 1;
+                    });
+                    
+                    // 生成映射模式统计信息
+                    const modeSummary = [
+                        "映射模式统计:",
+                        `相加模式(0): 原始=${modeStats.original[0] || 0}, 转换后=${modeStats.converted[0] || 0}`,
+                        `相乘模式(1): 原始=${modeStats.original[1] || 0}, 转换后=${modeStats.converted[1] || 0}`,
+                        `替代模式(2): 原始=${modeStats.original[2] || 0}, 转换后=${modeStats.converted[2] || 0}`
+                    ].join('\n');
+                    
+                    modeComparison.value = modeSummary;
+                    
+                    // 生成启用标志统计信息
+                    let flagsSummary = "启用标志统计:\n";
+                    const allFlags = new Set([
+                        ...Object.keys(enableFlagsStats.original),
+                        ...Object.keys(enableFlagsStats.converted)
+                    ]);
+                    
+                    for (const flag of allFlags) {
+                        const originalCount = enableFlagsStats.original[flag] || 0;
+                        const convertedCount = enableFlagsStats.converted[flag] || 0;
+                        
+                        flagsSummary += `${flag}: 原始=${originalCount}, 转换后=${convertedCount}\n`;
+                        
+                        if (originalCount !== convertedCount) {
+                            identical = false;
+                            differences.push(`启用标志 ${flag} 数量不同: 原始=${originalCount}, 转换后=${convertedCount}`);
+                        }
+                    }
+                    
+                    enableFlagsComparison.value = flagsSummary;
+                    
+                    // 设置比较结果信息
+                    if (identical) {
+                        comparisonResult.textContent = "比较结果: 完全匹配!";
+                        comparisonResult.className = 'info';
+                    } else {
+                        comparisonResult.textContent = `比较结果: 发现 ${differences.length} 个不同点 - ${differences.join('; ')}`;
+                        comparisonResult.className = 'warning';
+                    }
+                } catch (error) {
+                    comparisonResult.textContent = '比较失败: ' + error.message;
+                    comparisonResult.className = 'error';
+                    modeComparison.value = '';
+                    enableFlagsComparison.value = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

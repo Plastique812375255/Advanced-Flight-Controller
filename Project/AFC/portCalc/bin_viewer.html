@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFC 通道计算器 - 二进制文件查看器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .hex-view {
+            font-family: monospace;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 14px;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            line-height: 1.5;
+        }
+        .controls {
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-left: 5px solid #4CAF50;
+        }
+        .file-input {
+            margin-bottom: 15px;
+        }
+        .byte-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .structure-view {
+            margin-top: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+        }
+        .structure-item {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .structure-item:last-child {
+            border-bottom: none;
+        }
+        .highlight {
+            background-color: #ffeb3b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AFC 通道计算器 - 二进制文件查看器</h1>
+        
+        <div class="section">
+            <h2>文件加载</h2>
+            <div class="file-input">
+                <input type="file" id="fileInput" accept=".bin">
+                <button id="loadTestFileBtn">加载测试文件</button>
+            </div>
+            <div class="info" id="fileInfo">
+                请选择或加载一个二进制文件...
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>十六进制查看器</h2>
+            <div class="controls">
+                <button id="prevPageBtn" disabled>上一页</button>
+                <button id="nextPageBtn" disabled>下一页</button>
+                <span id="pageInfo"></span>
+            </div>
+            <div class="byte-info">
+                <span id="bytePosition">位置: - </span>
+                <span id="fileSize">文件大小: - </span>
+            </div>
+            <div class="hex-view" id="hexView">
+                加载文件后显示十六进制数据...
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>结构分析</h2>
+            <div class="controls">
+                <button id="analyzeBtn" disabled>分析二进制结构</button>
+            </div>
+            <div class="structure-view" id="structureView">
+                加载文件后可分析二进制结构...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM元素
+            const fileInput = document.getElementById('fileInput');
+            const loadTestFileBtn = document.getElementById('loadTestFileBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const hexView = document.getElementById('hexView');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInfo = document.getElementById('pageInfo');
+            const bytePosition = document.getElementById('bytePosition');
+            const fileSize = document.getElementById('fileSize');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const structureView = document.getElementById('structureView');
+            
+            // 状态
+            let fileData = null;
+            let currentPage = 0;
+            const bytesPerPage = 256;
+            const bytesPerRow = 16;
+            
+            // 监听文件选择
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    loadFile(file);
+                }
+            });
+            
+            // 加载测试文件
+            loadTestFileBtn.addEventListener('click', function() {
+                fetch('test_modes.bin')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('无法加载测试文件');
+                        }
+                        return response.arrayBuffer();
+                    })
+                    .then(data => {
+                        fileData = new Uint8Array(data);
+                        updateFileInfo(fileData, 'test_modes.bin');
+                        displayHexPage(0);
+                        enableControls(true);
+                    })
+                    .catch(error => {
+                        fileInfo.textContent = '错误：' + error.message;
+                        fileInfo.style.borderLeftColor = '#f44336';
+                        fileInfo.style.backgroundColor = '#ffebee';
+                    });
+            });
+            
+            // 上一页
+            prevPageBtn.addEventListener('click', function() {
+                if (currentPage > 0) {
+                    currentPage--;
+                    displayHexPage(currentPage);
+                }
+            });
+            
+            // 下一页
+            nextPageBtn.addEventListener('click', function() {
+                if (fileData && (currentPage + 1) * bytesPerPage < fileData.length) {
+                    currentPage++;
+                    displayHexPage(currentPage);
+                }
+            });
+            
+            // 分析按钮
+            analyzeBtn.addEventListener('click', function() {
+                if (fileData) {
+                    analyzeStructure(fileData);
+                }
+            });
+            
+            // 加载文件
+            function loadFile(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    fileData = new Uint8Array(e.target.result);
+                    updateFileInfo(fileData, file.name);
+                    displayHexPage(0);
+                    enableControls(true);
+                };
+                
+                reader.onerror = function() {
+                    fileInfo.textContent = '错误：无法读取文件';
+                    fileInfo.style.borderLeftColor = '#f44336';
+                    fileInfo.style.backgroundColor = '#ffebee';
+                };
+                
+                reader.readAsArrayBuffer(file);
+            }
+            
+            // 更新文件信息
+            function updateFileInfo(data, fileName) {
+                fileInfo.textContent = `文件名: ${fileName}, 大小: ${data.length} 字节`;
+                fileInfo.style.borderLeftColor = '#4CAF50';
+                fileInfo.style.backgroundColor = '#e8f5e9';
+                
+                fileSize.textContent = `文件大小: ${data.length} 字节`;
+                
+                // 重置页码
+                currentPage = 0;
+                
+                if (data.length <= bytesPerPage) {
+                    nextPageBtn.disabled = true;
+                } else {
+                    nextPageBtn.disabled = false;
+                }
+            }
+            
+            // 显示十六进制页面
+            function displayHexPage(page) {
+                if (!fileData) return;
+                
+                const startByte = page * bytesPerPage;
+                const endByte = Math.min(startByte + bytesPerPage, fileData.length);
+                
+                let html = '';
+                let asciiLine = '';
+                
+                // 地址栏标题
+                html += '地址      ';
+                for (let i = 0; i < bytesPerRow; i++) {
+                    html += (i).toString(16).padStart(2, '0').toUpperCase() + ' ';
+                }
+                html += '    ASCII\n';
+                html += '────────  ';
+                for (let i = 0; i < bytesPerRow; i++) {
+                    html += '── ';
+                }
+                html += '   ────────────────\n';
+                
+                for (let i = startByte; i < endByte; i += bytesPerRow) {
+                    // 地址
+                    html += (i).toString(16).padStart(8, '0').toUpperCase() + '  ';
+                    
+                    asciiLine = '';
+                    
+                    // 十六进制
+                    for (let j = 0; j < bytesPerRow; j++) {
+                        if (i + j < endByte) {
+                            const byte = fileData[i + j];
+                            html += byte.toString(16).padStart(2, '0').toUpperCase() + ' ';
+                            // ASCII表示
+                            if (byte >= 32 && byte <= 126) {
+                                asciiLine += String.fromCharCode(byte);
+                            } else {
+                                asciiLine += '.';
+                            }
+                        } else {
+                            html += '   ';
+                            asciiLine += ' ';
+                        }
+                    }
+                    
+                    html += '   ' + asciiLine + '\n';
+                }
+                
+                hexView.textContent = html;
+                
+                // 更新页码信息
+                const totalPages = Math.ceil(fileData.length / bytesPerPage);
+                pageInfo.textContent = `页 ${currentPage + 1} / ${totalPages}`;
+                
+                // 更新字节位置
+                bytePosition.textContent = `位置: ${startByte} - ${endByte - 1}`;
+                
+                // 更新按钮状态
+                prevPageBtn.disabled = currentPage <= 0;
+                nextPageBtn.disabled = endByte >= fileData.length;
+            }
+            
+            // 启用控件
+            function enableControls(enabled) {
+                analyzeBtn.disabled = !enabled;
+                prevPageBtn.disabled = !enabled || currentPage <= 0;
+                
+                if (enabled && fileData) {
+                    nextPageBtn.disabled = (currentPage + 1) * bytesPerPage >= fileData.length;
+                } else {
+                    nextPageBtn.disabled = true;
+                }
+            }
+            
+            // 分析二进制结构
+            function analyzeStructure(data) {
+                if (!data || data.length < 12) {
+                    structureView.innerHTML = '<div class="structure-item">文件太小，无法分析</div>';
+                    return;
+                }
+                
+                let html = '';
+                let offset = 0;
+                
+                // 模型信息 - 前8个字节
+                const modelId = (data[0] << 8) | data[1];
+                const gearCount = data[2];
+                const portCount = data[3];
+                
+                html += `<div class="structure-item">
+                    <strong>文件头 (偏移量 0-3):</strong><br>
+                    模型ID: ${modelId}<br>
+                    档位数量: ${gearCount}<br>
+                    接口数量: ${portCount}
+                </div>`;
+                
+                offset = 4;
+                
+                // 接口参数
+                html += `<div class="structure-item">
+                    <strong>接口参数部分 (偏移量 ${offset}-${offset + portCount * 8 - 1}):</strong><br>
+                </div>`;
+                
+                // 计算线性输入参数的数量 (假设为20)
+                const linearInputCount = 20;
+                
+                // 线性输入参数部分
+                const linearParamsOffset = offset + portCount * 8;
+                html += `<div class="structure-item">
+                    <strong>线性输入参数部分 (偏移量 ${linearParamsOffset}-${linearParamsOffset + linearInputCount * 5 - 1}):</strong><br>
+                </div>`;
+                
+                // 映射表部分
+                const mapTableOffset = linearParamsOffset + linearInputCount * 5;
+                
+                // 估算映射表条目
+                const mapEntrySize = 12; // 每个映射条目的字节数
+                const estimatedMapCount = Math.floor((data.length - mapTableOffset) / mapEntrySize);
+                
+                html += `<div class="structure-item">
+                    <strong>映射表部分 (偏移量 ${mapTableOffset}-${data.length - 1}):</strong><br>
+                    估计条目数: ${estimatedMapCount}<br>
+                </div>`;
+                
+                // 映射模式分析
+                let modeCounter = { 0: 0, 1: 0, 2: 0 };
+                
+                for (let i = 0; i < estimatedMapCount; i++) {
+                    const entryOffset = mapTableOffset + i * mapEntrySize;
+                    if (entryOffset + 10 < data.length) {
+                        const mode = data[entryOffset + 9];
+                        if (mode <= 2) {
+                            modeCounter[mode]++;
+                        }
+                    }
+                }
+                
+                html += `<div class="structure-item">
+                    <strong>映射模式统计:</strong><br>
+                    相加模式 (0): ${modeCounter[0]} 个映射<br>
+                    相乘模式 (1): ${modeCounter[1]} 个映射<br>
+                    替代模式 (2): ${modeCounter[2]} 个映射<br>
+                </div>`;
+                
+                structureView.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html> 
