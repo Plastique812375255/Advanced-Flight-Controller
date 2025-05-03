@@ -11,15 +11,20 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.util.Log;
+import android.content.Context;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView webView;
+    private static final String TAG = "MainActivity";
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -43,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowContentAccess(true);  // 允许内容访问
         webSettings.setAllowFileAccessFromFileURLs(true);  // 允许文件URL的文件访问
         webSettings.setAllowUniversalAccessFromFileURLs(true);  // 允许通用访问
+        
+        // 添加JavaScript接口
+        webView.addJavascriptInterface(new WebAppInterface(this), "Android");
 
         // 设置WebViewClient以在WebView内处理导航
         webView.setWebViewClient(new WebViewClient() {
@@ -51,10 +59,21 @@ public class MainActivity extends AppCompatActivity {
                 // 让所有链接都在WebView中打开，而不是在默认浏览器中
                 return false;
             }
+            
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                Log.d(TAG, "页面加载完成: " + url);
+            }
         });
 
         // 设置WebChromeClient处理JavaScript对话框、标题等
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onConsoleMessage(String message, int lineNumber, String sourceID) {
+                Log.d(TAG, "控制台: " + sourceID + ":" + lineNumber + " " + message);
+            }
+        });
         
         // 禁用WebView的返回手势
         webView.setOnKeyListener((v, keyCode, event) -> {
@@ -65,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        // 默认加载本地HTML
+        // 加载Vue应用
         webView.loadUrl("file:///android_asset/html/index.html");
         
         // 禁用系统手势导航
@@ -77,6 +96,54 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return false;
             });
+        }
+    }
+    
+    /**
+     * JavaScript接口类
+     * 提供JavaScript调用Android原生方法的能力
+     */
+    public class WebAppInterface {
+        Context mContext;
+
+        /** 构造函数 */
+        WebAppInterface(Context c) {
+            mContext = c;
+        }
+
+        /** 发送数据到原生层 */
+        @JavascriptInterface
+        public void sendToNative(String data) {
+            Log.d(TAG, "从Web接收数据: " + data);
+            // 处理从Web接收的数据
+        }
+
+        /** 获取电池电量 */
+        @JavascriptInterface
+        public int getBatteryLevel() {
+            // 这里是模拟数据，实际应该获取真实电池电量
+            return 85;
+        }
+
+        /** 获取连接状态 */
+        @JavascriptInterface
+        public String getConnectionStatus() {
+            // 这里是模拟数据，实际应该获取真实连接状态
+            return "disconnected";
+        }
+        
+        /** 显示Toast消息 */
+        @JavascriptInterface
+        public void showToast(String message) {
+            Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+        }
+        
+        /** 获取设备信息 */
+        @JavascriptInterface
+        public String getDeviceInfo() {
+            return "{\"model\":\"" + Build.MODEL + 
+                   "\",\"manufacturer\":\"" + Build.MANUFACTURER + 
+                   "\",\"apiLevel\":" + Build.VERSION.SDK_INT + "}";
         }
     }
     
@@ -132,15 +199,6 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         // 屏蔽系统返回手势，完全禁用返回功能
         // 如需在特定页面允许返回，可通过WebView的URL判断
-        
-        // 原代码（如果想保留WebView内部返回功能，取消下方注释）
-        /*
-        if (webView.canGoBack()) {
-            webView.goBack();
-        } else {
-            super.onBackPressed();
-        }
-        */
     }
     
     // 拦截系统返回键

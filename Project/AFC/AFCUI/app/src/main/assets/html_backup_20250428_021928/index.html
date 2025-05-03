@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本地HTML演示</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            -webkit-text-size-adjust: 100%; /* 防止iOS设备上的文本大小自动调整 */
+        }
+        
+        h1 {
+            margin: 0;
+            padding: 0;
+            font-size: 1.5rem; /* 响应式字体大小 */
+            white-space: nowrap; /* 防止文本换行 */
+            overflow: hidden; /* 防止文本溢出 */
+            text-overflow: ellipsis; /* 文本溢出时显示省略号 */
+            max-width: 100%; /* 限制最大宽度 */
+        }
+        
+        /* 在小屏幕上调整字体大小 */
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+        }
+        
+        /* 在更小的屏幕上继续调整字体大小 */
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 1rem;
+            }
+        }
+        .frame-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* 防止内容溢出导致滚动条 */
+            position: fixed; /* 确保容器固定在视口内 */
+            top: 0;
+            left: 0;
+        }
+        .top-frame {
+            height: 11.11%; /* 1/9的高度 */
+            min-height: 50px; /* 确保最小高度 */
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10; /* 确保顶部栏总是可见 */
+            flex-shrink: 0; /* 防止顶部栏被压缩 */
+        }
+        
+        /* 删除区域样式 */
+        .top-frame.delete-active {
+            background: linear-gradient(to bottom, rgba(255, 0, 0, 0.8), #333);
+            transition: all 0.3s ease;
+        }
+        
+        .top-frame.delete-active.drag-over {
+            background: linear-gradient(to bottom, rgb(255, 0, 0), #333);
+        }
+        
+        .delete-zone-text {
+            display: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            animation: pulse 2s infinite;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+        }
+        
+        .top-frame.delete-active .delete-zone-text {
+            display: block;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+        
+        /* 状态显示元素 */
+        .connection-status, .current-time, .battery-status {
+            transition: opacity 0.3s ease;
+        }
+        
+        /* 编辑模式下隐藏状态显示元素 */
+        .top-frame.delete-active .connection-status,
+        .top-frame.delete-active .current-time,
+        .top-frame.delete-active .battery-status {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* 增强退出编辑模式按钮的样式和可见性 */
+        #exitEditModeBtn {
+            display: none;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001; /* 提高z-index确保在最上层 */
+            font-size: 16px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            user-select: none; /* 防止文本被选中 */
+            -webkit-tap-highlight-color: transparent; /* 移除移动设备上的点击高亮 */
+        }
+        
+        #exitEditModeBtn:hover {
+            background-color: #d32f2f;
+        }
+        
+        #exitEditModeBtn:active {
+            background-color: #b71c1c;
+            transform: translateY(-50%) scale(0.98);
+        }
+        
+        .top-frame.delete-active #exitEditModeBtn {
+            display: block;
+        }
+        
+        .bottom-frame {
+            height: 88.89%; /* 8/9的高度 */
+            overflow: hidden;
+            position: relative;
+            flex-grow: 1; /* 允许底部框架自适应增长 */
+        }
+        iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* 遮罩层样式 */
+        #afcMenuOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999; /* 降低遮罩层的z-index */
+            display: none;
+        }
+        
+        /* 菜单样式 */
+        .menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .menu.show {
+            right: 0;
+        }
+        
+        .menu-header {
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .menu-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .menu-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .menu-content {
+            padding: 20px;
+        }
+        
+        .menu-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .menu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .menu-item .item-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-item .item-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e3f2fd;
+            border-radius: 50%;
+            color: #2196F3;
+        }
+        
+        .menu-item .item-text {
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .menu-item .item-arrow {
+            color: #999;
+            font-size: 20px;
+        }
+        
+        /* 组件选项样式 */
+        .widget-option {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.2s;
+        }
+        
+        .widget-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .widget-option-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e3f2fd;
+            border-radius: 50%;
+            color: #2196F3;
+            font-size: 14px;
+        }
+        
+        .widget-option-text {
+            font-size: 16px;
+            color: #333;
+        }
+        
+        /* 二级菜单样式 */
+        .submenu {
+            display: none;
+            background-color: #f9f9f9;
+            padding-left: 20px;
+        }
+        
+        .submenu.show {
+            display: block;
+        }
+        
+        .submenu-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .submenu-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .submenu-item .item-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .submenu-item .item-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e3f2fd;
+            border-radius: 50%;
+            color: #2196F3;
+            font-size: 14px;
+        }
+        
+        .submenu-item .item-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .submenu-item .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .submenu-item .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .submenu-item .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .submenu-item .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        .submenu-item input:checked + .toggle-slider {
+            background-color: #2196F3;
+        }
+        
+        .submenu-item input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* 连接状态指示器 */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: gray;
+        }
+        
+        .status-connected {
+            background-color: #4CAF50; /* 绿色 - 已连接 */
+        }
+        
+        .status-disconnected {
+            background-color: #F44336; /* 红色 - 未连接 */
+        }
+        
+        .status-transmitting {
+            background-color: #FFC107; /* 黄色 - 传输中 */
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+        
+        /* 当前时间样式 */
+        .current-time {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        /* 电池电量样式 */
+        .battery-status {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .battery-icon {
+            position: relative;
+            width: 22px;
+            height: 12px;
+            border: 1px solid white;
+            border-radius: 2px;
+            margin-right: 5px;
+        }
+        
+        .battery-icon::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: -4px;
+            width: 3px;
+            height: 8px;
+            background-color: white;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .battery-level {
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            height: 10px;
+            background-color: #4CAF50;
+            border-radius: 1px;
+        }
+        
+        .battery-low {
+            background-color: #F44336;
+        }
+        
+        .battery-charging {
+            background-color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="frame-container">
+        <div class="top-frame">
+            <button id="exitEditModeBtn">退出编辑</button>
+            
+            <!-- 连接状态 -->
+            <div class="connection-status">
+                <div class="status-indicator"></div>
+                <span class="status-text">未连接</span>
+            </div>
+            
+            <!-- 当前时间 -->
+            <div class="current-time">00:00:00</div>
+            
+            <!-- 电池状态 -->
+            <div class="battery-status">
+                <div class="battery-icon">
+                    <div class="battery-level" style="width: 70%;"></div>
+                </div>
+                <span class="battery-percentage">70%</span>
+            </div>
+            
+            <!-- 删除区域文本 -->
+            <div class="delete-zone-text">拖动到这里删除组件</div>
+        </div>
+        <div class="bottom-frame">
+            <iframe src="unpaired.html" id="bottomFrame"></iframe>
+        </div>
+    </div>
+    
+    <!-- 统一菜单遮罩层 -->
+    <div id="afcMenuOverlay"></div>
+    
+    <!-- 统一侧边菜单 -->
+    <div id="afcMenu" class="menu">
+        <div class="menu-header">
+            <div class="menu-title">AFC菜单</div>
+            <button class="menu-close" onclick="hideMenu('afcMenu')">×</button>
+        </div>
+        <div class="menu-content">
+            <div class="menu-item" onclick="toggleSubmenu('settingsSubmenu')">
+                <div class="item-content">
+                    <div class="item-icon">⚙️</div>
+                    <div class="item-text">设置</div>
+                </div>
+                <div class="item-arrow">›</div>
+            </div>
+            <div id="settingsSubmenu" class="submenu">
+                <div class="submenu-item">
+                    <div class="item-content">
+                        <div class="item-icon">📡</div>
+                        <div class="item-text">WiFi</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wifiToggle" onchange="toggleWiFi(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="submenu-item">
+                    <div class="item-content">
+                        <div class="item-icon">🌙</div>
+                        <div class="item-text">夜间模式</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="menu-item" onclick="handleMenuAction('afcMenu', 'action1')">
+                <div class="item-content">
+                    <div class="item-icon">📊</div>
+                    <div class="item-text">功能1</div>
+                </div>
+            </div>
+            <div class="menu-item" onclick="handleMenuAction('afcMenu', 'action2')">
+                <div class="item-content">
+                    <div class="item-icon">⚡</div>
+                    <div class="item-text">功能2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 初始化变量
+        let startX = 0;
+        let startTime = 0;
+        const minDistance = 100; // 最小滑动距离
+        const maxTime = 500; // 最大滑动时间 (毫秒)
+        let isDesktopEditMode = false; // 桌面编辑模式状态
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化滑动手势识别
+            initSwipeGesture();
+            
+            // 初始化删除区域和退出编辑按钮
+            initEditModeControls();
+            
+            // 初始化状态指示器
+            initStatusIndicators();
+            
+            // 创建测试面板
+            createTestPanel();
+        });
+        
+        // 初始化编辑模式控件
+        function initEditModeControls() {
+            const topFrame = document.querySelector('.top-frame');
+            const exitBtn = document.getElementById('exitEditModeBtn');
+            
+            // 移除可能已存在的事件监听
+            exitBtn.removeEventListener('click', handleExitEditModeClick);
+            
+            // 直接定义处理函数用于引用
+            function handleExitEditModeClick(e) {
+                // 阻止事件冒泡和默认行为
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('退出编辑模式按钮被点击 - 事件对象：', e.type);
+                
+                const iframe = document.getElementById('bottomFrame');
+                if (!iframe || !iframe.contentWindow) {
+                    console.error('找不到iframe或iframe.contentWindow');
+                    return;
+                }
+                
+                // 检查iframe是否加载完成
+                if (iframe.contentDocument.readyState !== 'complete') {
+                    console.error('iframe尚未完全加载');
+                    return;
+                }
+                
+                // 打印可用的方法以进行调试
+                console.log('iframe window 方法：', Object.keys(iframe.contentWindow));
+                
+                try {
+                    console.log('尝试调用iframe的exitEditMode函数');
+                    // 直接调用
+                    iframe.contentWindow.exitEditMode();
+                    console.log('exitEditMode函数调用成功');
+                    
+                    // 更新编辑模式状态
+                    isDesktopEditMode = false;
+                    
+                    // 更新顶部框架状态
+                    topFrame.classList.remove('delete-active');
+                    topFrame.classList.remove('drag-over');
+                    exitBtn.style.display = 'none';
+                } catch (error) {
+                    console.error('调用iframe的exitEditMode函数失败:', error);
+                    
+                    // 尝试使用eval作为备选方案
+                    try {
+                        console.log('尝试使用eval调用exitEditMode');
+                        iframe.contentWindow.eval('if(typeof exitEditMode === "function") exitEditMode();');
+                        
+                        // 更新编辑模式状态
+                        isDesktopEditMode = false;
+                        
+                        // 更新顶部框架状态
+                        topFrame.classList.remove('delete-active');
+                        topFrame.classList.remove('drag-over');
+                        exitBtn.style.display = 'none';
+                    } catch (evalError) {
+                        console.error('使用eval调用exitEditMode失败:', evalError);
+                    }
+                }
+            }
+            
+            // 添加事件监听
+            exitBtn.addEventListener('click', handleExitEditModeClick);
+            
+            // 触摸设备上的支持
+            exitBtn.addEventListener('touchend', handleExitEditModeClick);
+            
+            // 为顶部区域添加拖放事件（用作删除区域）
+            topFrame.addEventListener('dragover', function(e) {
+                if (isDesktopEditMode) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    this.classList.add('drag-over');
+                }
+            });
+            
+            topFrame.addEventListener('dragleave', function(e) {
+                this.classList.remove('drag-over');
+            });
+            
+            topFrame.addEventListener('drop', function(e) {
+                if (!isDesktopEditMode) return;
+                
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                
+                // 获取组件ID并转发给iframe
+                const widgetId = e.dataTransfer.getData('text/plain');
+                if (widgetId) {
+                    // 通知iframe处理删除
+                    const iframe = document.getElementById('bottomFrame');
+                    if (iframe && iframe.contentWindow) {
+                        // 移除对应组件
+                        const widgetElement = iframe.contentDocument.getElementById(widgetId);
+                        if (widgetElement) {
+                            widgetElement.remove();
+                            
+                            // 通知iframe更新管理器
+                            if (iframe.contentWindow.widgetManager) {
+                                iframe.contentWindow.widgetManager.removeWidget(widgetId);
+                                iframe.contentWindow.widgetManager.saveLayout();
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 改进的触摸事件支持
+            let touchStartY = 0;
+            let touchStartX = 0;
+            let potentialDrag = false;
+            
+            // 记录触摸开始位置
+            topFrame.addEventListener('touchstart', function(e) {
+                if (isDesktopEditMode && e.touches.length === 1) {
+                    touchStartY = e.touches[0].clientY;
+                    touchStartX = e.touches[0].clientX;
+                    potentialDrag = true;
+                    console.log('顶部区域触摸开始: ', touchStartX, touchStartY);
+                }
+            }, { passive: true });
+            
+            // 处理触摸移动
+            topFrame.addEventListener('touchmove', function(e) {
+                if (!isDesktopEditMode || !potentialDrag) return;
+                
+                const touchY = e.touches[0].clientY;
+                const touchX = e.touches[0].clientX;
+                const deltaY = touchY - touchStartY;
+                const deltaX = touchX - touchStartX;
+                
+                // 判断是否是有效的触摸移动（避免小的抖动）
+                if (Math.abs(deltaY) > 10 || Math.abs(deltaX) > 10) {
+                    console.log('顶部区域有效触摸移动');
+                    this.classList.add('drag-over');
+                    
+                    // 防止触摸事件继续传播和默认行为
+                    if (e.cancelable) {
+                        e.preventDefault();
+                    }
+                    
+                    // 通知iframe有拖动发生在删除区域
+                    const iframe = document.getElementById('bottomFrame');
+                    if (iframe && iframe.contentWindow && typeof iframe.contentWindow.onDeleteZoneDragOver === 'function') {
+                        iframe.contentWindow.onDeleteZoneDragOver();
+                    }
+                }
+            }, { passive: false });
+            
+            // 处理触摸结束
+            topFrame.addEventListener('touchend', function(e) {
+                if (!isDesktopEditMode || !potentialDrag) return;
+                
+                console.log('顶部区域触摸结束');
+                this.classList.remove('drag-over');
+                potentialDrag = false;
+                
+                // 通知iframe有拖动释放在删除区域
+                const iframe = document.getElementById('bottomFrame');
+                if (iframe && iframe.contentWindow && typeof iframe.contentWindow.onDeleteZoneDrop === 'function') {
+                    iframe.contentWindow.onDeleteZoneDrop(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+                }
+                
+                // 防止触摸事件继续传播
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // 触摸取消时清除状态
+            topFrame.addEventListener('touchcancel', function() {
+                console.log('顶部区域触摸取消');
+                this.classList.remove('drag-over');
+                potentialDrag = false;
+            }, { passive: true });
+        }
+        
+        // 检查是否应该删除组件 - 由iframe调用
+        function checkDeleteWidget(clientX, clientY, widgetId) {
+            if (!isDesktopEditMode) return false;
+            
+            console.log(`检查删除：触摸点坐标(${clientX}, ${clientY}), 组件ID:${widgetId}`);
+            
+            // 检查是否在顶部删除区域内
+            const topFrame = document.querySelector('.top-frame');
+            const rect = topFrame.getBoundingClientRect();
+            console.log(`删除区域范围: 左:${rect.left}, 上:${rect.top}, 右:${rect.right}, 下:${rect.bottom}`);
+            
+            // 检查触摸点是否在删除区域内
+            if (clientY >= rect.top && clientY <= rect.bottom &&
+                clientX >= rect.left && clientX <= rect.right) {
+                console.log(`组件 ${widgetId} 的触摸点在删除区域内，应该删除`);
+                
+                // 添加视觉反馈
+                topFrame.classList.add('drag-over');
+                setTimeout(() => {
+                    topFrame.classList.remove('drag-over');
+                }, 300);
+                
+                return true;
+            }
+            
+            console.log(`组件 ${widgetId} 的触摸点不在删除区域内`);
+            topFrame.classList.remove('drag-over');
+            return false;
+        }
+        
+        // 桌面编辑模式状态变化处理
+        function onDesktopEditModeChange(editMode) {
+            console.log(`桌面编辑模式变化: ${editMode}`);
+            isDesktopEditMode = editMode;
+            
+            // 更新顶部框架状态
+            const topFrame = document.querySelector('.top-frame');
+            const exitBtn = document.getElementById('exitEditModeBtn');
+            
+            if (editMode) {
+                // 激活删除区域
+                topFrame.classList.add('delete-active');
+                // 显示退出按钮
+                exitBtn.style.display = 'block';
+            } else {
+                // 关闭删除区域
+                topFrame.classList.remove('delete-active');
+                topFrame.classList.remove('drag-over');
+                // 隐藏退出按钮
+                exitBtn.style.display = 'none';
+            }
+        }
+        
+        // 添加新函数，用于处理安卓设备上的拖动释放
+        function handleTouchDrop(clientX, clientY, widgetId) {
+            if (!isDesktopEditMode) return false;
+            
+            // 检查是否在顶部删除区域内
+            const topFrame = document.querySelector('.top-frame');
+            const rect = topFrame.getBoundingClientRect();
+            
+            if (clientY >= rect.top && clientY <= rect.bottom &&
+                clientX >= rect.left && clientX <= rect.right) {
+                console.log(`组件 ${widgetId} 通过触摸释放在删除区域内，执行删除`);
+                
+                // 删除组件
+                const iframe = document.getElementById('bottomFrame');
+                if (iframe && iframe.contentWindow) {
+                    // 通知iframe删除组件
+                    if (typeof iframe.contentWindow.deleteWidget === 'function') {
+                        iframe.contentWindow.deleteWidget(widgetId);
+                    }
+                }
+                
+                // 添加视觉反馈
+                topFrame.classList.add('drag-over');
+                setTimeout(() => {
+                    topFrame.classList.remove('drag-over');
+                }, 300);
+                
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // 暴露函数给iframe调用
+        window.checkDeleteWidget = checkDeleteWidget;
+        window.onDesktopEditModeChange = onDesktopEditModeChange;
+        window.handleTouchDrop = handleTouchDrop;
+        
+        // 初始化滑动手势识别
+        function initSwipeGesture() {
+            // 滑动开始时记录位置和时间
+            function handleTouchStart(e) {
+                console.log('触摸开始');
+                // 检查是否有菜单已经打开
+                const menu = document.getElementById('afcMenu');
+                
+                if ((menu && menu.style.right === '0px')) {
+                    console.log('菜单已打开，不响应滑动手势');
+                    return;
+                }
+                
+                startX = e.touches[0].clientX;
+                startTime = Date.now();
+                console.log(`记录起始位置: X=${startX}, 时间=${startTime}`);
+            }
+            
+            // 滑动结束时检查是否符合左滑条件
+            function handleTouchEnd(e) {
+                console.log('触摸结束');
+                // 检查是否有菜单已经打开
+                const menu = document.getElementById('afcMenu');
+                
+                if ((menu && menu.style.right === '0px')) {
+                    console.log('菜单已打开，不响应滑动手势');
+                    return;
+                }
+                
+                // 确保这是一次单指滑动
+                if (e.changedTouches.length !== 1) {
+                    console.log('非单指滑动，忽略');
+                    return;
+                }
+                
+                const endX = e.changedTouches[0].clientX;
+                const endTime = Date.now();
+                const deltaX = endX - startX;
+                const deltaTime = endTime - startTime;
+                
+                console.log(`滑动距离: ${deltaX}px, 时间: ${deltaTime}ms`);
+                console.log(`判断条件: 距离需大于${minDistance}px, 时间需小于${maxTime}ms`);
+                
+                // 如果是从右向左的快速滑动，显示菜单
+                if (deltaX < -minDistance && deltaTime < maxTime) {
+                    console.log('检测到左滑手势，显示菜单');
+                    showCombinedMenu();
+                }
+                
+                // 如果是从左向右的快速滑动，隐藏菜单
+                if (deltaX > minDistance && deltaTime < maxTime) {
+                    if (menu && menu.style.right === '0px') {
+                        console.log('检测到右滑手势，隐藏菜单');
+                        hideMenu();
+                    }
+                }
+            }
+            
+            // 添加触摸事件监听
+            document.addEventListener('touchstart', handleTouchStart, { passive: true });
+            document.addEventListener('touchend', handleTouchEnd, { passive: true });
+            
+            console.log('滑动手势识别已初始化');
+        }
+        
+        // 显示合并后的菜单
+        function showCombinedMenu() {
+            console.log('显示菜单');
+            
+            // 直接获取元素
+            let menu = document.getElementById('afcMenu');
+            let overlay = document.getElementById('afcMenuOverlay');
+            let titleDiv = menu.querySelector('.menu-title');
+            let menuContent = document.querySelector('.menu-content');
+            
+            if (!menu || !overlay) {
+                console.error('菜单元素不存在');
+                return;
+            }
+            
+            console.log('找到菜单元素，准备显示');
+            
+            // 检查桌面iframe是否处于编辑模式
+            const iframe = document.getElementById('bottomFrame');
+            let editMode = false;
+            
+            try {
+                if (iframe && iframe.contentWindow) {
+                    editMode = iframe.contentWindow.isEditMode && iframe.contentWindow.isEditMode();
+                }
+            } catch (e) {
+                console.error('无法获取iframe编辑模式状态', e);
+            }
+            
+            // 根据当前模式显示不同的菜单内容
+            if (editMode) {
+                // 编辑模式 - 显示组件菜单
+                titleDiv.textContent = '添加组件';
+                menuContent.innerHTML = `
+                    <div class="widget-option" data-widget-id="system.small">
+                        <div class="widget-option-icon">1x1</div>
+                        <div class="widget-option-text">小组件</div>
+                    </div>
+                    <div class="widget-option" data-widget-id="system.medium">
+                        <div class="widget-option-icon">3x1</div>
+                        <div class="widget-option-text">中组件</div>
+                    </div>
+                    <div class="widget-option" data-widget-id="system.large">
+                        <div class="widget-option-icon">4x2</div>
+                        <div class="widget-option-text">大组件</div>
+                    </div>
+                    <div class="widget-option" data-widget-id="user.custom">
+                        <div class="widget-option-icon">2x2</div>
+                        <div class="widget-option-text">自定义组件</div>
+                    </div>
+                    <div class="widget-option" data-widget-id="system.model-name">
+                        <div class="widget-option-icon">3x1</div>
+                        <div class="widget-option-text">模型名称</div>
+                    </div>
+                    <div class="widget-option" data-widget-id="system.model-image">
+                        <div class="widget-option-icon">4x3</div>
+                        <div class="widget-option-text">模型图片</div>
+                    </div>
+                `;
+                
+                // 添加点击事件
+                const options = menuContent.querySelectorAll('.widget-option');
+                options.forEach(option => {
+                    option.addEventListener('click', function() {
+                        const widgetId = this.dataset.widgetId;
+                        // 调用iframe中的函数添加组件
+                        if (iframe && iframe.contentWindow && iframe.contentWindow.addWidgetFromParent) {
+                            iframe.contentWindow.addWidgetFromParent(widgetId);
+                            hideMenu();
+                        } else {
+                            console.error('无法调用iframe中的addWidgetFromParent函数');
+                        }
+                    });
+                });
+            } else {
+                // 普通模式 - 显示AFC菜单
+                titleDiv.textContent = 'AFC菜单';
+                menuContent.innerHTML = `
+                    <div class="menu-item" onclick="showSettingsMenu()">
+                        <div class="item-content">
+                            <div class="item-icon">⚙️</div>
+                            <div class="item-text">设置</div>
+                        </div>
+                        <div class="item-arrow">›</div>
+                    </div>
+                    <div class="menu-item" onclick="handleMenuAction('afcMenu', 'action1')">
+                        <div class="item-content">
+                            <div class="item-icon">📊</div>
+                            <div class="item-text">功能1</div>
+                        </div>
+                    </div>
+                    <div class="menu-item" onclick="handleMenuAction('afcMenu', 'action2')">
+                        <div class="item-content">
+                            <div class="item-icon">⚡</div>
+                            <div class="item-text">功能2</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // 显示菜单和遮罩
+            overlay.style.display = 'block';
+            menu.classList.add('show');
+            
+            // 添加遮罩点击事件
+            overlay.onclick = hideMenu;
+            
+            console.log('菜单已显示');
+        }
+        
+        // 显示设置菜单
+        function showSettingsMenu() {
+            const menu = document.getElementById('afcMenu');
+            const titleDiv = menu.querySelector('.menu-title');
+            const menuContent = document.querySelector('.menu-content');
+            
+            // 更新菜单标题和内容
+            titleDiv.textContent = '设置';
+            menuContent.innerHTML = `
+                <div class="menu-item" onclick="handleMenuAction('settingsMenu', 'wifi')">
+                    <div class="item-content">
+                        <div class="item-icon">📡</div>
+                        <div class="item-text">WiFi</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="wifiToggle" onchange="toggleWiFi(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="menu-item" onclick="handleMenuAction('settingsMenu', 'darkMode')">
+                    <div class="item-content">
+                        <div class="item-icon">🌙</div>
+                        <div class="item-text">夜间模式</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode(this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="menu-item" onclick="showCombinedMenu()">
+                    <div class="item-content">
+                        <div class="item-icon">←</div>
+                        <div class="item-text">返回</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 隐藏菜单
+        function hideMenu() {
+            console.log('隐藏菜单');
+            
+            // 直接获取元素
+            const menu = document.getElementById('afcMenu');
+            const overlay = document.getElementById('afcMenuOverlay');
+            
+            if (!menu || !overlay) {
+                console.error('菜单元素不存在');
+                return;
+            }
+            
+            menu.classList.remove('show');
+            overlay.style.display = 'none';
+            
+            console.log('菜单已隐藏');
+        }
+        
+        // 初始化状态指示器
+        function initStatusIndicators() {
+            // 初始化当前时间
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // 模拟连接状态变化
+            updateConnectionStatus('connected');
+            
+            // 模拟电池状态
+            updateBatteryStatus(70, false);
+            
+            // 尝试使用Battery API (如果浏览器支持)
+            if (navigator.getBattery) {
+                navigator.getBattery().then(function(battery) {
+                    updateBatteryFromAPI(battery);
+                    
+                    // 监听电池状态变化
+                    battery.addEventListener('levelchange', function() {
+                        updateBatteryFromAPI(battery);
+                    });
+                    battery.addEventListener('chargingchange', function() {
+                        updateBatteryFromAPI(battery);
+                    });
+                });
+            }
+        }
+        
+        // 更新时间显示
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.querySelector('.current-time').textContent = timeStr;
+        }
+        
+        // 更新连接状态
+        function updateConnectionStatus(status) {
+            const indicator = document.querySelector('.status-indicator');
+            const statusText = document.querySelector('.status-text');
+            
+            // 移除所有状态类
+            indicator.classList.remove('status-connected', 'status-disconnected', 'status-transmitting');
+            
+            // 根据状态设置样式和文本
+            switch(status) {
+                case 'connected':
+                    indicator.classList.add('status-connected');
+                    statusText.textContent = '已连接';
+                    break;
+                case 'disconnected':
+                    indicator.classList.add('status-disconnected');
+                    statusText.textContent = '未连接';
+                    break;
+                case 'transmitting':
+                    indicator.classList.add('status-transmitting');
+                    statusText.textContent = '传输中';
+                    break;
+                default:
+                    indicator.classList.add('status-disconnected');
+                    statusText.textContent = '未连接';
+            }
+        }
+        
+        // 更新电池状态
+        function updateBatteryStatus(level, isCharging) {
+            const batteryLevel = document.querySelector('.battery-level');
+            const batteryPercentage = document.querySelector('.battery-percentage');
+            
+            // 移除所有状态类
+            batteryLevel.classList.remove('battery-low', 'battery-charging');
+            
+            // 设置电量百分比
+            batteryLevel.style.width = `${level}%`;
+            batteryPercentage.textContent = `${level}%`;
+            
+            // 根据电量和充电状态设置样式
+            if (isCharging) {
+                batteryLevel.classList.add('battery-charging');
+            } else if (level <= 20) {
+                batteryLevel.classList.add('battery-low');
+            }
+        }
+        
+        // 从Battery API更新电池状态
+        function updateBatteryFromAPI(battery) {
+            const level = Math.round(battery.level * 100);
+            const isCharging = battery.charging;
+            updateBatteryStatus(level, isCharging);
+        }
+        
+        // 切换二级菜单显示/隐藏
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            submenu.classList.toggle('show');
+        }
+        
+        // WiFi开关处理
+        function toggleWiFi(enabled) {
+            console.log('WiFi状态:', enabled ? '开启' : '关闭');
+            // TODO: 实现WiFi开关功能
+        }
+        
+        // 夜间模式开关处理
+        function toggleDarkMode(enabled) {
+            console.log('夜间模式状态:', enabled ? '开启' : '关闭');
+            // TODO: 实现夜间模式开关功能
+        }
+        
+        // 创建测试面板
+        function createTestPanel() {
+            // 创建测试面板容器
+            const testPanel = document.createElement('div');
+            testPanel.id = 'testPanel';
+            testPanel.style.position = 'fixed';
+            testPanel.style.bottom = '60px';
+            testPanel.style.right = '10px';
+            testPanel.style.width = '200px';
+            testPanel.style.backgroundColor = 'white';
+            testPanel.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
+            testPanel.style.borderRadius = '5px';
+            testPanel.style.padding = '10px';
+            testPanel.style.zIndex = '9998';
+            testPanel.style.display = 'none';
+            
+            // 添加标题
+            const title = document.createElement('div');
+            title.textContent = '测试控制面板';
+            title.style.fontWeight = 'bold';
+            title.style.marginBottom = '10px';
+            title.style.borderBottom = '1px solid #eee';
+            title.style.paddingBottom = '5px';
+            
+            // 添加连接/断开按钮
+            const connectionBtn = document.createElement('button');
+            connectionBtn.id = 'connectionTestBtn';
+            connectionBtn.textContent = '连接设备';
+            connectionBtn.style.width = '100%';
+            connectionBtn.style.padding = '8px';
+            connectionBtn.style.margin = '5px 0';
+            connectionBtn.style.backgroundColor = '#2196F3';
+            connectionBtn.style.color = 'white';
+            connectionBtn.style.border = 'none';
+            connectionBtn.style.borderRadius = '4px';
+            connectionBtn.style.cursor = 'pointer';
+            
+            let isConnected = false; // 默认未连接状态
+            
+            connectionBtn.onclick = function() {
+                if (isConnected) {
+                    // 断开连接
+                    isConnected = false;
+                    connectionBtn.textContent = '连接设备';
+                    connectionBtn.style.backgroundColor = '#2196F3';
+                    
+                    // 更新顶部状态
+                    updateConnectionStatus('disconnected');
+                    
+                    // 切换到未对频界面
+                    const iframe = document.getElementById('bottomFrame');
+                    iframe.src = 'unpaired.html';
+                    
+                    console.log('模拟设备断开连接');
+                } else {
+                    // 连接设备
+                    isConnected = true;
+                    connectionBtn.textContent = '断开连接';
+                    connectionBtn.style.backgroundColor = '#F44336';
+                    
+                    // 更新顶部状态
+                    updateConnectionStatus('connected');
+                    
+                    // 切换到已对频界面
+                    const iframe = document.getElementById('bottomFrame');
+                    iframe.src = 'desktop.html';
+                    
+                    console.log('模拟设备连接成功');
+                }
+            };
+            
+            // 关闭按钮
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '关闭';
+            closeBtn.style.width = '100%';
+            closeBtn.style.padding = '8px';
+            closeBtn.style.margin = '5px 0';
+            closeBtn.style.backgroundColor = '#757575';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.borderRadius = '4px';
+            closeBtn.style.cursor = 'pointer';
+            
+            closeBtn.onclick = function() {
+                hideTestPanel();
+            };
+            
+            // 组装面板
+            testPanel.appendChild(title);
+            testPanel.appendChild(connectionBtn);
+            testPanel.appendChild(closeBtn);
+            
+            document.body.appendChild(testPanel);
+        }
+        
+        // 显示测试面板
+        function showTestPanel() {
+            const testPanel = document.getElementById('testPanel');
+            testPanel.style.display = 'block';
+        }
+        
+        // 隐藏测试面板
+        function hideTestPanel() {
+            const testPanel = document.getElementById('testPanel');
+            testPanel.style.display = 'none';
+        }
+    </script>
+</body>
+</html> 

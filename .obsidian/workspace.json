@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "6f1d5b107d43d504",
+    "type": "split",
+    "children": [
+      {
+        "id": "bd5c139956ae7e37",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f22ad2e8277394dd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Project/AFC/Port Calculator.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Port Calculator"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "ef77aaf6bfb1de54",
+    "type": "split",
+    "children": [
+      {
+        "id": "72f9cd00acea5766",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "94f72e437dd20605",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "8639b14694f703b0",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "a9071e6fea094d64",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6f5f1ad70df0b3b3",
+    "type": "split",
+    "children": [
+      {
+        "id": "8367574cc6cf34dd",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "de80dd5e9e6dc658",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Project/AFC/Port Calculator.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Port Calculator 的反向链接列表"
+            }
+          },
+          {
+            "id": "8cb83df48d8e775a",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Project/AFC/Port Calculator.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Port Calculator 的出链列表"
+            }
+          },
+          {
+            "id": "55485711e5162032",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "55272e354769fcfc",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Project/AFC/Port Calculator.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Port Calculator 的大纲"
+            }
+          }
+        ],
+        "currentTab": 3
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false
+    }
+  },
+  "active": "f22ad2e8277394dd",
+  "lastOpenFiles": [
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/common/model-image/index.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/common/medium/index.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/common/small/index.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/common/model-name/index.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/common/large/index.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/user/index.json",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/user/custom-widget.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/system/small-widget.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/system/model-name-widget.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/system/model-image-widget.js",
+    "Project/AFC/AFCUI/app/src/main/assets/html/widgets/system/medium-widget.js",
+    "Project/AFC/UI文档.md",
+    "Project/AFC/changelog/20250429-unpaired-view-redesign.md",
+    "Project/AFC/changelog/20250428-webview-path-fix.md",
+    "Project/AFC/AFCUI/frontend/src/assets/logo.png",
+    "Project/AFC/AFCUI/frontend/node_modules/core-js/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/typescript/SECURITY.md",
+    "Project/AFC/AFCUI/frontend/node_modules/typescript/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/webpack/node_modules/ajv/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint-webpack-plugin/node_modules/ajv/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/css-minimizer-webpack-plugin/node_modules/ajv/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/mini-css-extract-plugin/node_modules/ajv/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/terser-webpack-plugin/node_modules/ajv/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/webpack-dev-server/node_modules/ajv/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint/node_modules/eslint-scope/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint-webpack-plugin/node_modules/ajv-keywords/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/vue-style-loader/node_modules/hash-sum/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/sass/node_modules/readdirp/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint/node_modules/globals/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/sass/node_modules/chokidar/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/@babel/core/node_modules/semver/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint-plugin-vue/node_modules/globals/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint-plugin-vue/node_modules/type-fest/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/yorkie/node_modules/shebang-command/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint/node_modules/estraverse/README.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint/node_modules/chalk/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/eslint/node_modules/type-fest/readme.md",
+    "Project/AFC/AFCUI/frontend/node_modules/@vue/cli-service/logo.png",
+    "Project/AFC/AFCUI/frontend/node_modules/@vue/cli-plugin-babel/logo.png",
+    "Project/AFC/AFCUI/frontend/node_modules/@vue/cli-service/generator/template/src/assets/logo.png",
+    "Project/AFC/AFCUI/frontend/node_modules/@vue/cli-plugin-typescript/logo.png",
+    "Project/AFC/AFCUI/frontend/node_modules/@vue/cli-plugin-eslint/logo.png",
+    "Project/AFC/AFCUI/frontend/node_modules/dotenv-expand/dotenv-expand.png",
+    "Project/AFC/AFCUI/frontend/node_modules/highlight.js/scss/school-book.png",
+    "Project/AFC/AFCUI/frontend/node_modules/highlight.js/scss/pojoaque.jpg",
+    "Project/AFC/AFCUI/frontend/node_modules/highlight.js/scss/brown-papersq.png"
+  ]
+}

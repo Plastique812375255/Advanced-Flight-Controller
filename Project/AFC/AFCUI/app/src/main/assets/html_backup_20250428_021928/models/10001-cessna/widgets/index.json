@@ -1,0 +1,14 @@
+[
+  {
+    "id": "10001-specific",
+    "name": "塞斯纳专用插件",
+    "description": "仅适用于塞斯纳机型的专用小组件",
+    "file": "10001-specific/index.js"
+  },
+  {
+    "id": "10001-feature",
+    "name": "塞斯纳特性插件",
+    "description": "展示塞斯纳机型特殊功能的小组件",
+    "file": "10001-feature/index.js"
+  }
+] 

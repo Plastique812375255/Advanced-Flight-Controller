@@ -1,0 +1,8 @@
+[
+    {
+        "id": "user.custom",
+        "name": "用户自定义组件",
+        "description": "2x2 蓝色组件",
+        "file": "custom-widget.js"
+    }
+] 

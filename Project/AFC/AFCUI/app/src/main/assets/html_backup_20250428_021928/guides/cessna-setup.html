@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>塞斯纳设置向导</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            overflow: hidden;
+        }
+        
+        .setup-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+        }
+        
+        /* 顶部导航区域 */
+        .nav-area {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .back-button {
+            background-color: #757575;
+            color: white;
+        }
+        
+        .back-button:hover {
+            background-color: #616161;
+        }
+        
+        .next-button {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .next-button:hover {
+            background-color: #1976D2;
+        }
+        
+        /* 内容区域样式 */
+        .content-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px 10px 10px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        .header-area {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .page-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .step-indicator {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .setup-content {
+            flex-grow: 1;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: auto;
+        }
+        
+        .setup-text {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.4;
+        }
+        
+        .setup-text p {
+            margin: 0 0 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="nav-area">
+            <button class="button back-button" onclick="goBack()">返回</button>
+            <button class="button next-button" onclick="nextStep()">下一步</button>
+        </div>
+        
+        <div class="content-area">
+            <div class="header-area">
+                <div class="page-title">塞斯纳设置</div>
+                <div class="step-indicator">步骤 <span id="currentStepDisplay">1</span>/5</div>
+            </div>
+            
+            <div class="setup-content">
+                <div class="setup-text">
+                    <p>欢迎使用塞斯纳设置向导。本向导将引导您完成塞斯纳机型的设置过程。</p>
+                    <p>塞斯纳是经典的高翼单引擎固定翼飞机，具有稳定性好、容易操控的特点，是初学者的理想选择。</p>
+                    <p>在开始之前，请确保：</p>
+                    <p>1. 您的塞斯纳模型已经组装完成</p>
+                    <p>2. 所有舵机已连接到接收机</p>
+                    <p>3. 电池已充满电</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentStep = 1;
+        const totalSteps = 5;
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUI();
+        });
+        
+        // 返回机型选择
+        function goBack() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            } else {
+                window.location.href = '../setup-new-model.html';
+            }
+        }
+        
+        // 下一步处理
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            } else {
+                completeSetup();
+            }
+        }
+        
+        // 更新UI显示
+        function updateUI() {
+            // 更新步骤显示
+            document.getElementById('currentStepDisplay').textContent = currentStep;
+            
+            // 更新按钮文本
+            const nextButton = document.querySelector('.next-button');
+            nextButton.textContent = currentStep === totalSteps ? '完成' : '下一步';
+            
+            // 更新返回按钮文本
+            const backButton = document.querySelector('.back-button');
+            backButton.textContent = currentStep === 1 ? '返回' : '上一步';
+            
+            // 更新内容
+            const setupContent = document.querySelector('.setup-content');
+            switch(currentStep) {
+                case 1:
+                    setupContent.innerHTML = `
+                        <div class="setup-text">
+                            <p>欢迎使用塞斯纳设置向导。本向导将引导您完成塞斯纳机型的设置过程。</p>
+                            <p>塞斯纳是经典的高翼单引擎固定翼飞机，具有稳定性好、容易操控的特点，是初学者的理想选择。</p>
+                            <p>在开始之前，请确保：</p>
+                            <p>1. 您的塞斯纳模型已经组装完成</p>
+                            <p>2. 所有舵机已连接到接收机</p>
+                            <p>3. 电池已充满电</p>
+                        </div>
+                    `;
+                    break;
+                case 2:
+                    setupContent.innerHTML = `
+                        <div class="setup-text">
+                            <p><b>舵机连接</b></p>
+                            <p>塞斯纳模型通常有四个舵机控制面。请确认以下连接：</p>
+                            <p>1. 副翼舵机 → 通道1</p>
+                            <p>2. 升降舵舵机 → 通道2</p>
+                            <p>3. 油门/电调 → 通道3</p>
+                            <p>4. 方向舵舵机 → 通道4</p>
+                        </div>
+                    `;
+                    break;
+                case 3:
+                    setupContent.innerHTML = `
+                        <div class="setup-text">
+                            <p><b>舵机行程设置</b></p>
+                            <p>正确的舵面行程对于飞行控制至关重要：</p>
+                            <p>1. 副翼：上偏转≤15度，下偏转≤10度</p>
+                            <p>2. 升降舵：上下偏转均≤15度</p>
+                            <p>3. 方向舵：左右偏转均≤20度</p>
+                            <p>使用发射机上的行程调节功能调整各舵面行程量</p>
+                        </div>
+                    `;
+                    break;
+                case 4:
+                    setupContent.innerHTML = `
+                        <div class="setup-text">
+                            <p><b>重心平衡</b></p>
+                            <p>塞斯纳的重心位置通常应在：</p>
+                            <p>- 距机翼前缘后25-30%的翼弦处</p>
+                            <p>调整方法：移动电池位置或添加配重</p>
+                            <p>正确的重心位置使飞机有适当的稳定性，避免过度灵敏或过度稳定</p>
+                        </div>
+                    `;
+                    break;
+                case 5:
+                    setupContent.innerHTML = `
+                        <div class="setup-text">
+                            <p><b>飞行前检查</b></p>
+                            <p>首次飞行前，请执行以下检查：</p>
+                            <p>1. 各控制面自由移动，无卡阻</p>
+                            <p>2. 所有连接牢固，螺丝紧固</p>
+                            <p>3. 电池充足并正确固定</p>
+                            <p>4. 舵面动作方向正确</p>
+                            <p>5. 重心位置正确</p>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+        
+        // 完成设置
+        function completeSetup() {
+            alert('塞斯纳设置完成！');
+            window.location.href = '../../desktop.html';
+        }
+    </script>
+</body>
+</html> 

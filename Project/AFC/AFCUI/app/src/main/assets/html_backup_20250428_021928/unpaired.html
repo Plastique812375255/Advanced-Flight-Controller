@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未对频状态</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        
+        .unpaired-container {
+            text-align: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .unpaired-text {
+            font-size: 32px;
+            color: #666;
+            font-weight: bold;
+            margin-bottom: 60px;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            width: 80%; /* 控制按钮区域总宽度 */
+            gap: 30px; /* 按钮之间的间隔 */
+        }
+        
+        .large-button {
+            width: 45%; /* 设置按钮宽度，确保两个按钮加起来至少占屏幕四分之一 */
+            height: 160px; /* 设置按钮高度 */
+            border-radius: 12px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .traditional-button {
+            background-color: #607D8B; /* 深蓝灰色 */
+            color: white;
+        }
+        
+        .traditional-button:hover {
+            background-color: #455A64;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+        
+        .traditional-button:active {
+            background-color: #37474F;
+            transform: scale(0.98);
+        }
+        
+        .pair-button {
+            background-color: #2196F3; /* 蓝色 */
+            color: white;
+        }
+        
+        .pair-button:hover {
+            background-color: #1976D2;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+        }
+        
+        .pair-button:active {
+            background-color: #0D47A1;
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="unpaired-container">
+        <div class="unpaired-text">未连接</div>
+        <div class="buttons-container">
+            <button class="large-button traditional-button" onclick="useTraditionalMode()">使用传统模式</button>
+            <button class="large-button pair-button" onclick="showPairingModal()">对频</button>
+        </div>
+    </div>
+    
+    <script>
+        function showPairingModal() {
+            // 直接模拟对频流程 - 在实际应用中会弹出对频界面
+            window.location.href = "pairing.html";
+            
+            // 注意：实际对频成功会由pairing.html页面完成跳转
+            // 跳转到desktop.html (已对频主界面)
+        }
+        
+        function useTraditionalMode() {
+            // 跳转到传统模式界面
+            alert("即将进入传统模式");
+            // 在实际应用中，可以指向传统模式的页面
+            // window.location.href = "traditional.html";
+        }
+    </script>
+</body>
+</html> 

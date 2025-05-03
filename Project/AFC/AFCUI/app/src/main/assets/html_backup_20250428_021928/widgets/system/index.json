@@ -1,0 +1,32 @@
+[
+    {
+        "id": "system.small",
+        "name": "小组件",
+        "description": "1x1 红色组件",
+        "file": "small-widget.js"
+    },
+    {
+        "id": "system.medium",
+        "name": "中组件",
+        "description": "1x3 绿色组件",
+        "file": "medium-widget.js"
+    },
+    {
+        "id": "system.large",
+        "name": "大组件",
+        "description": "2x4 黄色组件",
+        "file": "large-widget.js"
+    },
+    {
+        "id": "system.model-name",
+        "name": "模型名称",
+        "description": "3x1 模型名称显示组件",
+        "file": "model-name-widget.js"
+    },
+    {
+        "id": "system.model-image",
+        "name": "模型图片",
+        "description": "4x3 模型图片显示组件",
+        "file": "model-image-widget.js"
+    }
+] 

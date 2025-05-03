@@ -1,0 +1,38 @@
+{
+  "id": "10001",
+  "name": "塞斯纳",
+  "description": "经典高翼单引擎固定翼飞机，稳定易操控",
+  "version": "1.0.0",
+  "category": 1,
+  "widgetGroups": [
+    {
+      "id": "system",
+      "name": "系统组件",
+      "widgets": ["system.model-name", "system.model-image"]
+    },
+    {
+      "id": "common",
+      "name": "通用组件",
+      "widgets": ["common.model-name", "common.model-image"]
+    },
+    {
+      "id": "10001-specific",
+      "name": "塞斯纳专用组件",
+      "widgets": ["10001-specific"]
+    }
+  ],
+  "supportedWidgets": ["*"],
+  "screens": [
+    {"id": "loading", "name": "加载界面", "file": "screens/loading.html"}
+  ],
+  "defaults": {
+    "widgets": [
+      {"id": "small", "source": "common", "position": {"x": 0, "y": 0}, "size": {"w": 1, "h": 1}},
+      {"id": "medium", "source": "common", "position": {"x": 1, "y": 0}, "size": {"w": 2, "h": 1}},
+      {"id": "10001-specific", "source": "model", "position": {"x": 0, "y": 1}, "size": {"w": 2, "h": 1}},
+      {"id": "model-name", "source": "common", "position": {"x": 3, "y": 0}, "size": {"w": 1, "h": 1}},
+      {"id": "model-image", "source": "common", "position": {"x": 3, "y": 1}, "size": {"w": 2, "h": 2}},
+      {"id": "large", "source": "common", "position": {"x": 0, "y": 2}, "size": {"w": 2, "h": 2}}
+    ]
+  }
+} 
